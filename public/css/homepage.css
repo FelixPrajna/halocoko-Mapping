@@ -1,0 +1,198 @@
+/* ================== GLOBAL ================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #2c1a12, #ff8c42);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ================== NAVBAR ================== */
+.navbar {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 1200px;
+    height: 60px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    z-index: 2000;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 20px;
+    color: #4b2c20;
+}
+
+.nav-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ================== USER INFO ================== */
+.user-info {
+    text-align: right;
+    line-height: 1.2;
+}
+
+.user-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4b2c20;
+}
+
+.user-email {
+    display: block;
+    font-size: 12px;
+    color: #6d4b3b;
+}
+
+/* ================== BUTTONS NAVBAR ================== */
+.btn-logout, .btn-create {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Tombol Logout */
+.btn-logout {
+    background: linear-gradient(135deg, #ff6a00, #ff8c42);
+    color: white;
+}
+
+.btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255,106,0,0.6);
+}
+
+/* Tombol Create */
+.btn-create {
+    background: linear-gradient(135deg, #ffb347, #ffcc33);
+    color: #4b2c20;
+}
+
+.btn-create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,188,71,0.6);
+}
+
+/* ================== MAP ================== */
+#map {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* ================== PANEL KIRI BAWAH ================== */
+.panel {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 260px;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(14px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    z-index: 2000;
+    animation: slideUp 0.6s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.panel h3 {
+    font-size: 18px;
+    color: #4b2c20;
+    margin-bottom: 15px;
+}
+
+.panel button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #ff8c42, #ff6a00);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(255,106,0,0.5);
+    transition: all 0.3s ease;
+}
+
+.panel button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(255,106,0,0.7);
+}
+
+/* ================== ZOOM CONTROL POJOK KANAN BAWAH ================== */
+.leaflet-control-zoom-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.leaflet-control-zoom-custom button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #ffe2c7, #ff9c5f);
+    color: #4b2c20;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    transition: all 0.25s ease;
+}
+
+.leaflet-control-zoom-custom button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #fff0e3, #ffad7a);
+}
+
+.leaflet-control-zoom-custom button:active {
+    transform: scale(0.95);
+}
+
+.leaflet-control-zoom-custom button:first-child {
+    margin-bottom: 6px;
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 768px) {
+    .panel {
+        width: calc(100% - 40px);
+        left: 20px;
+        bottom: 20px;
+    }
+    .navbar {
+        height: 55px;
+    }
+}
