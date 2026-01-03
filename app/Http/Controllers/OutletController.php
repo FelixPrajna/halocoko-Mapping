@@ -5,36 +5,51 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Outlet;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class OutletController extends Controller
 {
-    public function index() {
-        return view('dashboard');
-    }
-
-    public function upload(Request $request) {
+    // UPLOAD EXCEL
+    public function upload(Request $request)
+    {
         $request->validate([
-            'file' => 'required|mimes:csv,xlsx,xls'
+            'file' => 'required|mimes:xlsx,xls,csv'
         ]);
 
+        // hapus data lama (biar selalu pakai file terbaru)
+        DB::table('outlets')->truncate();
+
         $file = $request->file('file');
+        $sheets = Excel::toArray([], $file);
+        $rows = $sheets[0];
 
-        // baca Excel/CSV
-        $data = Excel::toArray([], $file); // return array semua sheet
-        $rows = $data[0]; // pakai sheet pertama
+        foreach ($rows as $i => $row) {
+            if ($i === 0) continue; // skip header
 
-        foreach($rows as $index => $row) {
-            // skip header
-            if($index == 0) continue;
+            if (!isset($row[0], $row[1], $row[2])) continue;
+
+            $lat = (float) str_replace(',', '.', $row[1]);
+            $lng = (float) str_replace(',', '.', $row[2]);
+
+            // validasi range koordinat
+            if ($lat < -90 || $lat > 90) continue;
+            if ($lng < -180 || $lng > 180) continue;
 
             Outlet::create([
-                'name' => $row[0] ?? 'Unknown',
-                'latitude' => $row[1] ?? 0,
-                'longitude' => $row[2] ?? 0
+                'name'      => trim($row[0]),
+                'latitude'  => $lat,
+                'longitude' => $lng,
             ]);
         }
 
-        return back()->with('success', 'File berhasil diupload dan data tersimpan!');
+        return back()->with('success', 'Data outlet berhasil diupload');
+    }
+
+    // API UNTUK MAP
+    public function apiOutlets()
+    {
+        return response()->json(
+            Outlet::select('id', 'name', 'latitude', 'longitude')->get()
+        );
     }
 }

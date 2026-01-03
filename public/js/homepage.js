@@ -1,47 +1,39 @@
-// Inisialisasi Map
-const map = L.map('map', {
-    zoomControl: false // matikan zoom default
-}).setView([-6.200000, 106.816666], 12);
+// INIT MAP
+const map = L.map('map').setView([-6.2, 106.8], 11);
 
-// Tile OpenStreetMap
+// TILE
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// Marker Start & End
-const start = [-6.200000, 106.816666]; // Jakarta
-const end = [-6.170000, 106.824000];   // Monas
+// LAYER MARKER
+const outletLayer = L.layerGroup().addTo(map);
 
-L.marker(start).addTo(map).bindPopup('Titik Awal');
-L.marker(end).addTo(map).bindPopup('Tujuan');
+// FETCH DATA OUTLET
+fetch('/api/outlets')
+    .then(res => res.json())
+    .then(data => {
 
-// Button Rute
-document.getElementById('btnRoute').addEventListener('click', function () {
-    const route = L.polyline([start, end], {
-        color: 'blue',
-        weight: 4
-    }).addTo(map);
+        if (data.length === 0) {
+            console.log('Tidak ada data outlet');
+            return;
+        }
 
-    map.fitBounds(route.getBounds());
+        data.forEach(outlet => {
+            if (!outlet.latitude || !outlet.longitude) return;
+
+            L.marker([outlet.latitude, outlet.longitude])
+                .addTo(outletLayer)
+                .bindPopup(`<b>${outlet.name}</b>`);
+        });
+
+        // auto center ke data
+        const first = data[0];
+        map.setView([first.latitude, first.longitude], 11);
+    })
+    .catch(err => console.error(err));
+
+// ROUTE BUTTON (dummy)
+document.getElementById('btnRoute').addEventListener('click', () => {
+    alert('Fitur rute belum aktif');
 });
-
-// ===== ZOOM CONTROL CUSTOM =====
-L.Control.ZoomCustom = L.Control.extend({
-    onAdd: function(map) {
-        const container = L.DomUtil.create('div', 'leaflet-control-zoom-custom');
-        
-        const btnIn = L.DomUtil.create('button', '', container);
-        btnIn.innerHTML = '+';
-        btnIn.title = 'Zoom In';
-        btnIn.onclick = function() { map.zoomIn(); };
-
-        const btnOut = L.DomUtil.create('button', '', container);
-        btnOut.innerHTML = '−';
-        btnOut.title = 'Zoom Out';
-        btnOut.onclick = function() { map.zoomOut(); };
-
-        return container;
-    }
-});
-
-map.addControl(new L.Control.ZoomCustom({ position: 'bottomright' }));
