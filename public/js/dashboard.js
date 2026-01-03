@@ -39,3 +39,33 @@ fileInput.addEventListener('change', () => {
         document.querySelector('.upload-label').innerText = fileName;
     }
 });
+
+// ================= TOGGLE DROPDOWN =================
+const toggle = document.getElementById('toggleData');
+const wrapper = document.querySelector('.data-wrapper');
+
+toggle.addEventListener('click', () => {
+    wrapper.classList.toggle('open');
+});
+
+// ================= LOAD DATA OUTLET =================
+fetch('/api/outlets')
+    .then(res => res.json())
+    .then(data => {
+        const tbody = document.getElementById('outletTableBody');
+        tbody.innerHTML = '';
+
+        data.forEach((o, i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${i + 1}</td>
+                <td>${o.name}</td>
+                <td>${o.latitude}</td>
+                <td>${o.longitude}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    })
+    .catch(err => console.error('Gagal load data outlet:', err));
+
+    
