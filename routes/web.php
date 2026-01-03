@@ -8,28 +8,29 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-/* Login */
+/* LOGIN */
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-/* Protected */
+/* PROTECTED */
 Route::middleware('auth')->group(function () {
 
-    // MAP HOMEPAGE
+    // MAP
     Route::get('/map', function () {
         return view('homepage');
     })->name('map');
 
-    // CREATE / DASHBOARD
+    // CREATE
     Route::get('/create', function () {
-        return view('dashboard');
+        $outlets = \App\Models\Outlet::all();
+        return view('dashboard', compact('outlets'));
     })->name('create');
 
-    // UPLOAD EXCEL
+    // UPLOAD
     Route::post('/upload', [OutletController::class, 'upload'])
         ->name('outlet.upload');
 
-    // 🔥 API DATA OUTLET (INI YANG KURANG)
+    // API DATA MAP
     Route::get('/api/outlets', [OutletController::class, 'api'])
         ->name('api.outlets');
 

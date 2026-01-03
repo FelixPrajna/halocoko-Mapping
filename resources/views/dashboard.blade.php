@@ -74,5 +74,31 @@
     @endif
     
 </div>
+<h2>Data Outlet</h2>
+
+@if(isset($outlets) && $outlets->count())
+<table border="1" cellpadding="8" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Nama Outlet</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($outlets as $i => $outlet)
+        <tr>
+            <td>{{ $i + 1 }}</td>
+            <td>{{ $outlet->name }}</td>
+            <td>{{ $outlet->latitude }}</td>
+            <td>{{ $outlet->longitude }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+@else
+<p>Belum ada data outlet.</p>
+@endif
 
 </html>

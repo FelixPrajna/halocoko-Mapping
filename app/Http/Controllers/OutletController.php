@@ -16,40 +16,32 @@ class OutletController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv'
         ]);
 
-        // hapus data lama (biar selalu pakai file terbaru)
         DB::table('outlets')->truncate();
 
-        $file = $request->file('file');
-        $sheets = Excel::toArray([], $file);
-        $rows = $sheets[0];
+        $rows = Excel::toArray([], $request->file('file'))[0];
 
         foreach ($rows as $i => $row) {
-            if ($i === 0) continue; // skip header
-
+            if ($i === 0) continue;
             if (!isset($row[0], $row[1], $row[2])) continue;
 
-            $lat = (float) str_replace(',', '.', $row[1]);
-            $lng = (float) str_replace(',', '.', $row[2]);
-
-            // validasi range koordinat
-            if ($lat < -90 || $lat > 90) continue;
-            if ($lng < -180 || $lng > 180) continue;
-
             Outlet::create([
-                'name'      => trim($row[0]),
-                'latitude'  => $lat,
-                'longitude' => $lng,
+                'name' => trim($row[0]),
+                'latitude' => (float) str_replace(',', '.', $row[1]),
+                'longitude' => (float) str_replace(',', '.', $row[2]),
             ]);
         }
 
-        return back()->with('success', 'Data outlet berhasil diupload');
+        return redirect()->route('create')
+            ->with('success', 'Upload berhasil');
     }
 
-    // API UNTUK MAP
-    public function apiOutlets()
+    // API MAP
+    public function api()
     {
         return response()->json(
-            Outlet::select('id', 'name', 'latitude', 'longitude')->get()
+            Outlet::whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get()
         );
     }
 }

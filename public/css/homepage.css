@@ -196,3 +196,12 @@ body {
         height: 55px;
     }
 }
+
+/* ================== FIX ZOOM CONTROL HILANG ================== */
+.leaflet-control-zoom,
+.leaflet-control-zoom-custom {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    z-index: 9999 !important;
+}
