@@ -5,15 +5,51 @@
     <title>Halocoko Map</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-    <!-- Custom CSS -->
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('css/homepage.css') }}">
+
+    <style>
+        body, html {
+            margin: 0;
+            height: 100%;
+        }
+
+        #map {
+            width: 100%;
+            height: calc(100vh - 60px);
+        }
+
+        .filter-box {
+            position: absolute;
+            top: 80px;
+            left: 15px;
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            z-index: 1000;
+            width: 220px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .filter-box label {
+            font-weight: bold;
+            display: block;
+            margin-top: 8px;
+        }
+
+        .filter-box select {
+            width: 100%;
+            margin-top: 5px;
+            padding: 6px;
+        }
+    </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
+<!-- ================= NAVBAR ================= -->
 <nav class="navbar">
     <div class="logo">🗺️ Halocoko Route</div>
 
@@ -32,19 +68,30 @@
     </div>
 </nav>
 
-<!-- MAP -->
-<div id="map"></div>
+<!-- ================= FILTER ================= -->
+<div class="filter-box">
+    <label>Hari</label>
+    <select id="filterDay">
+        <option value="">Semua Hari</option>
+        <option>Senin</option>
+        <option>Selasa</option>
+        <option>Rabu</option>
+        <option>Kamis</option>
+        <option>Jumat</option>
+        <option>Sabtu</option>
+    </select>
 
-<!-- PANEL -->
-<div class="panel">
-    <h3>Mapping Rute</h3>
-    <button id="btnRoute">Tampilkan Rute</button>
+    <label>Sales</label>
+    <select id="filterSales">
+        <option value="">Semua Sales</option>
+    </select>
 </div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- ================= MAP ================= -->
+<div id="map"></div>
 
-<!-- Custom JS -->
+<!-- ================= SCRIPT ================= -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ asset('js/homepage.js') }}"></script>
 
 </body>

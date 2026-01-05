@@ -420,3 +420,59 @@ body {
     opacity: 1 !important;
 }
 
+/* ================= ROUTING ONLY ================= */
+.routing-wrapper {
+    margin: 40px auto;
+    max-width: 1000px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 22px;
+    padding: 30px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+    color: #333;
+}
+
+.routing-wrapper h2 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: #4b2c20;
+}
+
+.routing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.routing-grid label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.routing-grid input,
+.routing-grid select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.btn-routing {
+    margin-top: 28px;
+    padding: 14px 36px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #6c5ce7, #4834d4);
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(108,92,231,0.45);
+}
+
+.btn-routing:hover {
+    transform: translateY(-2px);
+}

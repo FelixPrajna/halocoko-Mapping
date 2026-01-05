@@ -3,17 +3,13 @@
 // ==============================
 const map = L.map('map', {
     zoomControl: false,
-    scrollWheelZoom: false,
-    zoomAnimation: false,
-    fadeAnimation: false
+    scrollWheelZoom: false
 }).setView([-6.2, 106.8], 11);
 
 // ==============================
-// ZOOM CONTROL KANAN BAWAH
+// ZOOM CONTROL
 // ==============================
-L.control.zoom({
-    position: 'bottomright'
-}).addTo(map);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
 
 // ==============================
 // TILE
@@ -23,72 +19,113 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // ==============================
-// MAP ZOOM AKTIF HANYA SAAT CURSOR DI MAP
+// ENABLE SCROLL ZOOM ONLY ON MAP
 // ==============================
 const mapEl = document.getElementById('map');
+mapEl.addEventListener('mouseenter', () => map.scrollWheelZoom.enable());
+mapEl.addEventListener('mouseleave', () => map.scrollWheelZoom.disable());
 
-mapEl.addEventListener('mouseenter', () => {
-    map.scrollWheelZoom.enable();
+// ==============================
+// ROUTING LAYER
+// ==============================
+const routingLayer = L.layerGroup().addTo(map);
+
+// ==============================
+// COLOR BY DAY
+// ==============================
+const dayColors = {
+    "Senin":   "#ffffff",
+    "Selasa": "#1e90ff",
+    "Rabu":   "#ff3333",
+    "Kamis":  "#2ecc71",
+    "Jumat":  "#8e44ad",
+    "Sabtu":  "#e67e22"
+};
+
+// ==============================
+// LOAD ROUTING DATA
+// ==============================
+const stored = sessionStorage.getItem("generated_routes");
+let routes = stored ? JSON.parse(stored) : [];
+
+// ==============================
+// FILL SALES FILTER
+// ==============================
+const salesSelect = document.getElementById("filterSales");
+const salesSet = new Set();
+
+routes.forEach(r => salesSet.add(r.sales));
+salesSet.forEach(sales => {
+    const opt = document.createElement("option");
+    opt.value = sales;
+    opt.textContent = sales;
+    salesSelect.appendChild(opt);
 });
 
-mapEl.addEventListener('mouseleave', () => {
-    map.scrollWheelZoom.disable();
-});
-
 // ==============================
-// BLOK PINCH ZOOM DI UI (NAVBAR, PANEL, BUTTON)
+// RENDER MAP
 // ==============================
-const uiBlocks = document.querySelectorAll(
-    '.navbar, .panel, .leaflet-control-zoom'
-);
+function renderMap() {
 
-uiBlocks.forEach(el => {
-    el.addEventListener('wheel', e => {
-        if (e.ctrlKey) {
-            e.preventDefault(); // BLOK PAGE ZOOM
-        }
-        e.stopPropagation();   // JANGAN TERUS KE MAP
-    }, { passive: false });
-});
+    routingLayer.clearLayers();
 
-// ==============================
-// LAYER MARKER
-// ==============================
-const outletLayer = L.layerGroup().addTo(map);
+    const dayFilter = document.getElementById("filterDay").value;
+    const salesFilter = document.getElementById("filterSales").value;
 
-// ==============================
-// LOAD DATA OUTLET
-// ==============================
-fetch('/api/outlets')
-    .then(res => res.json())
-    .then(outlets => {
+    let bounds = [];
 
-        if (!outlets.length) return;
+    routes.forEach(route => {
 
-        const bounds = [];
+        if (dayFilter && route.day !== dayFilter) return;
+        if (salesFilter && route.sales !== salesFilter) return;
 
-        outlets.forEach(o => {
-            const lat = parseFloat(o.latitude);
-            const lng = parseFloat(o.longitude);
+        const color = dayColors[route.day] || "#3498db";
 
-            if (isNaN(lat) || isNaN(lng)) return;
+        route.outlets.forEach((o, i) => {
 
-            L.marker([lat, lng])
-                .addTo(outletLayer)
-                .bindPopup(`<strong>${o.name}</strong>`);
+            if (!o.latitude || !o.longitude) return;
 
-            bounds.push([lat, lng]);
+            const marker = L.marker(
+                [o.latitude, o.longitude],
+                {
+                    icon: L.divIcon({
+                        className: "custom-pin",
+                        html: `<div style="
+                            background:${color};
+                            border:2px solid #333;
+                            width:14px;
+                            height:14px;
+                            border-radius:50%;
+                        "></div>`,
+                        iconSize: [14,14],
+                        iconAnchor: [7,7]
+                    })
+                }
+            )
+            .bindPopup(`
+                <b>${o.name}</b><br>
+                ${route.sales}<br>
+                ${route.day}<br>
+                Urutan: ${i + 1}
+            `);
+
+            routingLayer.addLayer(marker);
+            bounds.push([o.latitude, o.longitude]);
         });
-
-        map.fitBounds(bounds);
     });
 
-// ==============================
-// FUNGSI LAMA
-// ==============================
-const btnRoute = document.getElementById('btnRoute');
-if (btnRoute) {
-    btnRoute.addEventListener('click', () => {
-        alert('Fitur rute belum diaktifkan');
-    });
+    if (bounds.length) {
+        map.fitBounds(bounds, { padding: [40, 40] });
+    }
 }
+
+// ==============================
+// FILTER EVENTS
+// ==============================
+document.getElementById("filterDay").addEventListener("change", renderMap);
+document.getElementById("filterSales").addEventListener("change", renderMap);
+
+// ==============================
+// INITIAL RENDER
+// ==============================
+renderMap();

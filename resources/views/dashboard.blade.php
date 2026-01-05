@@ -10,6 +10,8 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
 
@@ -44,6 +46,21 @@
         <input type="number" step="any" id="warehouse-lng" placeholder="Longitude">
         <button id="addWarehouseBtn">Tambahkan Gudang</button>
     </div>
+
+<div style="margin-top:20px;">
+    <label><strong>Pilih Hari</strong></label>
+    <select id="filterDay">
+        <option value="">-- Pilih Hari --</option>
+        <option>Senin</option>
+        <option>Selasa</option>
+        <option>Rabu</option>
+        <option>Kamis</option>
+        <option>Jumat</option>
+        <option>Sabtu</option>
+    </select>
+</div>
+</div>
+
 
     <!-- ===== MAP GUDANG ===== -->
     <div id="warehouse-map"></div>
@@ -110,10 +127,41 @@
         </div>
     </div>
 </div>
+<div class="routing-wrapper">
+
+    <h2>🛣️ Pengaturan Routing</h2>
+
+    <div class="routing-grid">
+
+        <div>
+            <label>Jumlah Sales</label>
+            <input type="number" id="salesCount" value="3">
+        </div>
+
+    
+        <div>
+            <label>Max Outlet per Hari</label>
+            <input type="number" id="maxOutlet" value="30">
+        </div>
+
+    </div>
+
+    <button class="btn-routing" id="generateRouteBtn">
+        🚀 Generate Route
+    </button>
+
+    <!-- TEMPAT HASIL ROUTING -->
+    <div id="routingResult" style="margin-top:30px;"></div>
+
+</div>
+
+
 
 <!-- ================= SCRIPT ================= -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ asset('js/dashboard.js') }}"></script>
+<script src="{{ asset('js/routing.js') }}"></script>
+
 
 <script>
     // Toggle dropdown Data Outlet
