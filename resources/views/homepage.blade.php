@@ -51,7 +51,7 @@
 
 <!-- ================= NAVBAR ================= -->
 <nav class="navbar">
-    <div class="logo">🗺️ Halocoko Route</div>
+    <div class="logo">🗺️ halocoko Route</div>
 
     <div class="nav-right">
         <div class="user-info">
@@ -89,6 +89,22 @@
 
 <!-- ================= MAP ================= -->
 <div id="map"></div>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+    <div class="footer-left">
+        © {{ date('Y') }} <strong>halocoko</strong>
+    </div>
+
+    <div class="footer-center">
+        Route Mapping & Distribution System
+    </div>
+
+    <div class="footer-right">
+        v1.0.0
+    </div>
+</footer>
+
 
 <!-- ================= SCRIPT ================= -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

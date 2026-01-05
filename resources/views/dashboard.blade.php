@@ -17,7 +17,7 @@
 
 <!-- ================= NAVBAR ================= -->
 <nav class="navbar">
-    <div class="logo">🗺️ Halocoko Dashboard</div>
+    <div class="logo">🗺️ halocoko Dashboard</div>
 
     <div class="nav-right">
         <div class="user-info">
@@ -153,9 +153,16 @@
     <!-- TEMPAT HASIL ROUTING -->
     <div id="routingResult" style="margin-top:30px;"></div>
 
+   <!-- FOOTER DI LUAR ROUTING -->
+    <footer class="footer">
+        <div class="footer-left">© 2026 halocoko</div>
+        <div class="footer-center">Route Mapping & Distribution System</div>
+        <div class="footer-right">v1.0.0</div>
+    </footer>
+
 </div>
 
-
+</body>
 
 <!-- ================= SCRIPT ================= -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -173,5 +180,5 @@
     });
 </script>
 
-</body>
+
 </html>

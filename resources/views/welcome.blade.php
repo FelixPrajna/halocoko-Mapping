@@ -12,7 +12,7 @@
 <div class="overlay"></div>
 
 <section class="welcome">
-    <h1>Selamat Datang di Halocoko Route</h1>
+    <h1>Selamat Datang di halocoko Route</h1>
     <p>
         Platform pemetaan rute modern untuk membantu perjalananmu
         menjadi lebih cepat, akurat, dan efisien.

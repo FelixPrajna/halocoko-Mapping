@@ -95,3 +95,46 @@ if (toggle && wrapper) {
         wrapper.classList.toggle('open');
     });
 }
+
+// ===============================
+// ANALYTICS: TOTAL KM & TIME
+// ===============================
+function calculateAnalytics(routes) {
+
+    const SPEED_KMH = 30; // estimasi kecepatan sales (km/jam)
+
+    const analytics = {};
+
+    routes.forEach(route => {
+
+        const key = `${route.day}-${route.sales}`;
+
+        if (!analytics[key]) {
+            analytics[key] = {
+                day: route.day,
+                sales: route.sales,
+                totalKm: 0,
+                totalOutlet: 0
+            };
+        }
+
+        route.outlets.forEach(o => {
+            analytics[key].totalKm += o.distance || 0;
+            analytics[key].totalOutlet++;
+        });
+    });
+
+    // HITUNG WAKTU
+    Object.values(analytics).forEach(a => {
+        a.estimatedTimeHour = a.totalKm / SPEED_KMH;
+        a.estimatedTimeText = formatTime(a.estimatedTimeHour);
+    });
+
+    return Object.values(analytics);
+}
+
+function formatTime(hour) {
+    const h = Math.floor(hour);
+    const m = Math.round((hour - h) * 60);
+    return `${h} jam ${m} menit`;
+}
