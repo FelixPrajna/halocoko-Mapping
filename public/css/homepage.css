@@ -7,9 +7,10 @@
 }
 
 body {
-    background: linear-gradient(135deg, #2c1a12, #ff8c42);
-    height: 100vh;
-    overflow: hidden;
+    .custom-pin {
+    background: none !important;
+    border: none !important;
+}
 }
 
 /* ================== NAVBAR ================== */
@@ -98,8 +99,11 @@ body {
 
 /* ================== MAP ================== */
 #map {
-    position: absolute;
-    inset: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     z-index: 1;
 }
 
@@ -206,3 +210,7 @@ body {
     z-index: 9999 !important;
 }
 
+.custom-pin {
+    background: none !important;
+    border: none !important;
+}
