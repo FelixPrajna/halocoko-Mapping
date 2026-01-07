@@ -175,9 +175,6 @@ function renderMapByDay(day) {
     });
 }
 
-/* =====================================================
-   TABLE
-===================================================== */
 function renderRoutingTable(routes) {
     const container = document.getElementById("routingResult");
     container.innerHTML = "";
@@ -190,6 +187,8 @@ function renderRoutingTable(routes) {
                 <tr>
                     <td>${i + 1}</td>
                     <td>${o.name}</td>
+                    <td>${route.day}</td>
+                    <td>${route.sales}</td>
                     <td>${o.latitude}</td>
                     <td>${o.longitude}</td>
                     <td>${o.distance.toFixed(2)} km</td>
@@ -198,22 +197,30 @@ function renderRoutingTable(routes) {
         });
 
         container.innerHTML += `
-            <h3>📅 ${route.day} — 👤 ${route.sales} (${route.outlets.length})</h3>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Outlet</th>
-                        <th>Lat</th>
-                        <th>Lng</th>
-                        <th>Jarak</th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>
+            <div style="margin-bottom:30px;">
+                <h3>📅 ${route.day} — 👤 ${route.sales} (${route.outlets.length})</h3>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Outlet</th>
+                            <th>Hari</th>
+                            <th>Sales</th>
+                            <th>Lat</th>
+                            <th>Lng</th>
+                            <th>Jarak</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
         `;
     });
 }
+
 
 /* =====================================================
    UTIL
@@ -256,3 +263,107 @@ function distance(lat1, lon1, lat2, lon2) {
         Math.sin(dLon / 2) ** 2;
     return R * 2 * Math.asin(Math.sqrt(a));
 }
+
+/* =====================================================
+   EXPORT CSV
+===================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+    const exportBtn = document.getElementById("exportCsvBtn");
+    if (!exportBtn) return;
+
+    exportBtn.onclick = () => exportGeneratedRoutesToCSV();
+});
+
+function exportGeneratedRoutesToCSV() {
+
+    if (!window.generatedRoutes.length) {
+        alert("Belum ada data routing");
+        return;
+    }
+
+    let csv = [];
+    csv.push(["No", "Outlet", "Hari", "Sales", "Lat", "Lng", "Jarak (km)"]);
+
+    let no = 1;
+
+    window.generatedRoutes.forEach(route => {
+        route.outlets.forEach(o => {
+            csv.push([
+                no++,
+                o.name,
+                route.day,
+                route.sales,
+                o.latitude,
+                o.longitude,
+                o.distance.toFixed(2)
+            ]);
+        });
+    });
+
+    const csvContent = csv
+        .map(row => row.map(val => `"${val}"`).join(","))
+        .join("\n");
+
+    downloadCSV(csvContent, "hasil_routing.csv");
+}
+
+function downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function collectEditedRoutingData() {
+    const rows = document.querySelectorAll(".routing-row");
+    const data = [];
+
+    rows.forEach(row => {
+        data.push({
+            outlet: row.querySelector(".col-outlet").innerText,
+            day: row.querySelector(".col-day").innerText,
+            sales: row.querySelector(".col-sales").innerText,
+            lat: row.querySelector(".col-lat").innerText,
+            lng: row.querySelector(".col-lng").innerText,
+            distance: row.querySelector(".col-distance").innerText
+        });
+    });
+
+    return data;
+}
+
+fetch('/routing/save', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document
+            .querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({
+        routes: collectEditedRoutingData()
+    })
+});
+
+let isEditMode = false;
+
+document.getElementById("editRoutingBtn").onclick = () => {
+    isEditMode = true;
+    document.getElementById("saveRoutingBtn").style.display = "inline-block";
+
+    document.querySelectorAll("#routingResult td[data-editable]")
+        .forEach(td => td.contentEditable = true);
+};
+
+document.getElementById("saveRoutingBtn").onclick = () => {
+    isEditMode = false;
+
+    document.querySelectorAll("#routingResult td")
+        .forEach(td => td.contentEditable = false);
+
+    saveEditedTable();
+};

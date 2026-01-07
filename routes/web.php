@@ -55,3 +55,5 @@ Route::middleware('auth')->group(function () {
     // LOGOUT
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+Route::post('/routing/save', [RoutingController::class, 'save']);
