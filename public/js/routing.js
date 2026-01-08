@@ -1,3 +1,12 @@
+const DAY_ORDER = {
+    Senin: 1,
+    Selasa: 2,
+    Rabu: 3,
+    Kamis: 4,
+    Jumat: 5,
+    Sabtu: 6
+};
+
 function createPinIcon(color) {
     return L.divIcon({
         className: "",
@@ -179,16 +188,36 @@ function renderRoutingTable(routes) {
     const container = document.getElementById("routingResult");
     container.innerHTML = "";
 
-    routes.forEach(route => {
+    routes.forEach((route, routeIndex) => {
 
         let rows = "";
         route.outlets.forEach((o, i) => {
+
             rows += `
                 <tr>
                     <td>${i + 1}</td>
                     <td>${o.name}</td>
-                    <td>${route.day}</td>
-                    <td>${route.sales}</td>
+
+                    <td>
+                        <select class="edit-day day-dropdown"
+                            data-route-index="${routeIndex}"
+                            data-outlet-index="${i}">
+                            ${Object.keys(DAY_ORDER).map(d =>
+                                `<option value="${d}" ${d === route.day ? "selected" : ""}>${d}</option>`
+                            ).join("")}
+                        </select>
+                    </td>
+
+                    <td>
+                        <select class="edit-sales sales-dropdown"
+                            data-route-index="${routeIndex}"
+                            data-outlet-index="${i}">
+                            ${getSalesList().map(s =>
+                                `<option value="${s}" ${s === route.sales ? 'selected' : ''}>${s}</option>`
+                            ).join("")}
+                        </select>
+                    </td>
+
                     <td>${o.latitude}</td>
                     <td>${o.longitude}</td>
                     <td>${o.distance.toFixed(2)} km</td>
@@ -218,6 +247,104 @@ function renderRoutingTable(routes) {
                 </table>
             </div>
         `;
+    });
+}
+document.addEventListener("change", function (e) {
+    if (!e.target.classList.contains("edit-day")) return;
+
+    const routeIndex = e.target.dataset.routeIndex;
+    const outletIndex = e.target.dataset.outletIndex;
+    const newDay = e.target.value;
+
+    moveOutletToNewDay(routeIndex, outletIndex, newDay);
+});
+
+document.addEventListener("change", function (e) {
+
+    if (e.target.classList.contains("edit-sales")) {
+
+        const routeIndex = e.target.dataset.routeIndex;
+        const outletIndex = e.target.dataset.outletIndex;
+        const newSales = e.target.value;
+
+        moveOutletToNewSales(routeIndex, outletIndex, newSales);
+    }
+});
+
+function moveOutletToNewSales(routeIndex, outletIndex, newSales) {
+
+    const route = window.generatedRoutes[routeIndex];
+    const outlet = route.outlets[outletIndex];
+
+    // Hapus outlet dari route lama
+    route.outlets.splice(outletIndex, 1);
+
+    // Cari route target (hari sama, sales beda)
+    let targetRoute = window.generatedRoutes.find(r =>
+        r.day === route.day && r.sales === newSales
+    );
+
+    if (!targetRoute) {
+        targetRoute = {
+            day: route.day,
+            sales: newSales,
+            outlets: []
+        };
+        window.generatedRoutes.push(targetRoute);
+    }
+
+    targetRoute.outlets.push(outlet);
+
+    // Bersihkan route kosong
+    window.generatedRoutes = window.generatedRoutes.filter(r => r.outlets.length);
+
+    sortGeneratedRoutes();
+
+    renderRoutingTable(window.generatedRoutes);
+    renderMapByDay(route.day);
+}
+
+function moveOutletToNewDay(routeIndex, outletIndex, newDay) {
+
+    const route = window.generatedRoutes[routeIndex];
+    const outlet = route.outlets[outletIndex];
+
+    // Hapus outlet dari route lama
+    route.outlets.splice(outletIndex, 1);
+
+    // Cari route tujuan (hari + sales sama)
+    let targetRoute = window.generatedRoutes.find(r =>
+        r.day === newDay && r.sales === route.sales
+    );
+
+    if (!targetRoute) {
+        targetRoute = {
+            day: newDay,
+            sales: route.sales,
+            outlets: []
+        };
+        window.generatedRoutes.push(targetRoute);
+    }
+
+    targetRoute.outlets.push(outlet);
+
+    // Bersihkan route kosong
+    window.generatedRoutes = window.generatedRoutes.filter(r => r.outlets.length);
+
+    sortGeneratedRoutes();
+
+    // RENDER ULANG
+    renderRoutingTable(window.generatedRoutes);
+    renderMapByDay(newDay);
+}
+function sortGeneratedRoutes() {
+    window.generatedRoutes.sort((a, b) => {
+
+        if (a.sales !== b.sales) {
+            return a.sales.localeCompare(b.sales);
+        }
+
+        return DAY_ORDER[a.day] - DAY_ORDER[b.day];
     });
 }
 
@@ -367,3 +494,13 @@ document.getElementById("saveRoutingBtn").onclick = () => {
 
     saveEditedTable();
 };
+
+function getSalesList() {
+    return [...new Set(
+        window.generatedRoutes.map(r => r.sales)
+    )].sort((a, b) => {
+        const na = parseInt(a.replace(/\D/g, '')) || 0;
+        const nb = parseInt(b.replace(/\D/g, '')) || 0;
+        return na - nb;
+    });
+}

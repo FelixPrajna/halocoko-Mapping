@@ -507,3 +507,92 @@ body {
         font-size: 12px;
     }
 }
+/* ================= EDIT DAY DROPDOWN ================= */
+.day-dropdown {
+    width: 110px;
+    padding: 6px 12px;
+    border-radius: 14px;
+
+    border: 1px solid #e2c2a2;
+    background: linear-gradient(135deg, #fffaf5, #fff2e6);
+
+    font-size: 13px;
+    font-weight: 700;
+    color: #4b2c20;
+
+    text-align: center;
+    text-align-last: center;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234b2c20'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+}
+
+/* Hover */
+.day-dropdown:hover {
+    box-shadow: 0 4px 12px rgba(255,140,66,0.35);
+    transform: translateY(-1px);
+}
+
+/* Focus */
+.day-dropdown:focus {
+    outline: none;
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 2px rgba(255,140,66,0.35);
+}
+
+/* Fix tinggi row agar center */
+.data-table td {
+    vertical-align: middle;
+}
+
+/* Center isi kolom Hari */
+.data-table td:nth-child(3),
+.data-table th:nth-child(3) {
+    text-align: center;
+}
+/* ================= SALES DROPDOWN ================= */
+.sales-dropdown {
+    width: 100px;
+    padding: 6px 12px;
+    border-radius: 14px;
+
+    border: 1px solid #c7d7f5;
+    background: linear-gradient(135deg, #f0f6ff, #e6efff);
+
+    font-size: 13px;
+    font-weight: 700;
+    color: #2c3e50;
+
+    text-align: center;
+    text-align-last: center;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    appearance: none;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232c3e50'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+}
+
+.sales-dropdown:hover {
+    box-shadow: 0 4px 12px rgba(52,152,219,0.35);
+}
+
+.sales-dropdown:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52,152,219,0.35);
+}
