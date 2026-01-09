@@ -59,6 +59,22 @@
         <option>Sabtu</option>
     </select>
 </div>
+
+<!-- SEARCH MAP -->
+<div class="map-search-wrapper">
+    <input
+        type="text"
+        id="mapSearchInput"
+        placeholder="Cari nama toko..."
+    />
+    <button 
+        type="button"
+        id="mapSearchBtn">
+        🔍 Search
+    </button>
+</div>
+
+
 </div>
 
 
@@ -146,9 +162,35 @@
 
     </div>
 
+    <div
+    style="
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin-top: 20px;
+    "
+    >
     <button class="btn-routing" id="generateRouteBtn">
         🚀 Generate Route
     </button>
+    <!-- SPACER -->
+    <div style="flex:1;"></div>
+
+    <!-- SEARCH -->
+    <input
+        type="text"
+        id="tableSearchInput"
+        placeholder="🔍 Cari nama outlet..."
+        style="
+            width: 300px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            color: #000;
+        "
+    >
+</div>
 
     <!-- TEMPAT HASIL ROUTING -->
     <div id="routingResult" style="margin-top:30px;"></div>
@@ -172,7 +214,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ asset('js/dashboard.js') }}"></script>
 <script src="{{ asset('js/routing.js') }}"></script>
-
+<script src="/js/map-search.js"></script>
 
 <script>
     // Toggle dropdown Data Outlet

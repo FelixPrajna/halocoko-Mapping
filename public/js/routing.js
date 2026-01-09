@@ -1,3 +1,5 @@
+window.allRouteMarkers = [];
+
 const DAY_ORDER = {
     Senin: 1,
     Selasa: 2,
@@ -158,6 +160,7 @@ function renderMapByDay(day) {
     if (!window.routingLayer) initRoutingLayer();
 
     window.routingLayer.clearLayers();
+    window.allRouteMarkers = []; // 🔥 RESET SEARCH DATA
 
     const filtered = window.generatedRoutes.filter(r => r.day === day);
     if (!filtered.length) return;
@@ -170,9 +173,10 @@ function renderMapByDay(day) {
 
         route.outlets.forEach((o, i) => {
 
-            L.marker([o.latitude, o.longitude],
-                {icon:createPinIcon(color)
-                })
+            const marker = L.marker(
+                [o.latitude, o.longitude],
+                { icon: createPinIcon(color) }
+            )
             .addTo(window.routingLayer)
             .bindPopup(`
                 <b>${o.name}</b><br>
@@ -180,9 +184,16 @@ function renderMapByDay(day) {
                 ${route.day}<br>
                 Urutan: ${i + 1}
             `);
+
+            // 🔥 SIMPAN MARKER UNTUK SEARCH
+            window.allRouteMarkers.push({
+                name: o.name.toLowerCase(),
+                marker
+            });
         });
     });
 }
+
 
 function renderRoutingTable(routes) {
     const container = document.getElementById("routingResult");

@@ -596,3 +596,36 @@ body {
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52,152,219,0.35);
 }
+
+/* ================= MAP SEARCH ================= */
+.map-search-wrapper {
+    margin: 20px auto 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#mapSearchInput {
+    width: 260px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+#mapSearchBtn {
+    padding: 12px 22px;
+    border-radius: 18px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #6c5ce7, #4834d4);
+    transition: 0.3s;
+}
+
+#mapSearchBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(108,92,231,0.6);
+}
+

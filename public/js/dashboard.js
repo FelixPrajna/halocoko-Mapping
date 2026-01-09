@@ -138,3 +138,9 @@ function formatTime(hour) {
     const m = Math.round((hour - h) * 60);
     return `${h} jam ${m} menit`;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (window.initMapSearch) {
+        window.initMapSearch();
+    }
+});
