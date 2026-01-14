@@ -34,15 +34,26 @@ window.routingLayer = null;
 /* =====================================================
    GENERATE ROUTE
 ===================================================== */
-document.addEventListener("DOMContentLoaded", () => {
+
+
+           document.addEventListener("DOMContentLoaded", () => {
 
     const btn = document.getElementById("generateRouteBtn");
     const dayFilter = document.getElementById("filterDay");
 
+    // Ambil data lama dari sessionStorage
+    window.generatedRoutes = JSON.parse(sessionStorage.getItem("generated_routes") || "[]");
+
+    // Jika sudah ada data, render ulang tabel dan map, jangan generate
+    if (window.generatedRoutes.length) {
+        renderRoutingTable(window.generatedRoutes);
+        initRoutingLayer();
+        renderMapByDay(dayFilter?.value || "Senin");
+    }
+
     if (!btn) return;
 
     btn.onclick = async () => {
-
         btn.disabled = true;
         btn.innerText = "⏳ Generating...";
 
@@ -70,23 +81,17 @@ document.addEventListener("DOMContentLoaded", () => {
             outlets.forEach(o => {
                 o.latitude = +o.latitude;
                 o.longitude = +o.longitude;
-                o.distance = distance(
-                    depot.lat,
-                    depot.lng,
-                    o.latitude,
-                    o.longitude
-                );
+                o.distance = distance(depot.lat, depot.lng, o.latitude, o.longitude);
             });
 
             outlets.sort((a, b) => b.distance - a.distance);
 
-            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const days = ["Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
             const perSales = Math.floor(outlets.length / salesCount);
             let idx = 0;
             const routes = [];
 
             for (let s = 1; s <= salesCount; s++) {
-
                 const slice = outlets.slice(idx, idx + perSales);
                 idx += perSales;
 
@@ -95,14 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 let p = 0;
 
                 for (let d = 0; d < 6; d++) {
-
                     let count = base + (rem-- > 0 ? 1 : 0);
                     if (count > maxOutletPerDay)
                         throw new Error("Max outlet per hari terlampaui");
 
-                    const daySlice = slice.slice(p, p + count);
+                    const daySlice = slice.slice(p, p+count);
                     p += count;
-
                     if (!daySlice.length) continue;
 
                     routes.push({
@@ -131,13 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dayFilter) {
         dayFilter.onchange = () => renderMapByDay(dayFilter.value);
     }
-
-    /* AUTO RENDER JIKA BALIK DARI BACK */
-    if (window.generatedRoutes.length) {
-        initRoutingLayer();
-        renderMapByDay(dayFilter?.value || "Senin");
-    }
 });
+
 
 /* =====================================================
    MAP
@@ -195,6 +193,70 @@ function renderMapByDay(day) {
 }
 
 
+/* =====================================================
+   ROUTING EDITOR + SAVE EDIT
+===================================================== */
+
+function insertOutletRow(routeIndex) {
+    const route = window.generatedRoutes[routeIndex];
+    if (!route) return;
+
+    route.outlets.push({
+        name: "Outlet Baru",
+        latitude: 0,
+        longitude: 0,
+        distance: 0,
+        _new: true
+    });
+
+    renderRoutingTable(window.generatedRoutes);
+}
+
+function saveRoute(routeIndex) {
+    const depot = JSON.parse(localStorage.getItem("warehouse_location"));
+    if (!depot) {
+        alert("Gudang belum disimpan");
+        return;
+    }
+
+    const route = window.generatedRoutes[routeIndex];
+    if (!route) return;
+
+    const table = document.querySelector(`.data-table[data-route-index="${routeIndex}"] tbody`);
+    if (!table) return;
+
+    const rows = table.querySelectorAll("tr");
+    const outlets = [];
+
+    rows.forEach((tr, idx) => {
+        const name = tr.querySelector(".col-name")?.innerText.trim();
+        const lat = parseFloat(tr.querySelector(".col-lat")?.innerText);
+        const lng = parseFloat(tr.querySelector(".col-lng")?.innerText);
+
+        if (!name || isNaN(lat) || isNaN(lng)) return;
+
+        outlets.push({
+            name,
+            latitude: lat,
+            longitude: lng,
+            distance: distance(depot.lat, depot.lng, lat, lng)
+        });
+    });
+
+    route.outlets = outlets;
+
+    // Simpan state
+    sessionStorage.setItem("generated_routes", JSON.stringify(window.generatedRoutes));
+
+    renderRoutingTable(window.generatedRoutes);
+    renderMapByDay(route.day);
+
+    console.log("✅ Route disimpan:", route.sales, route.day);
+}
+
+/* =====================================================
+   RENDER TABLE
+===================================================== */
 function renderRoutingTable(routes) {
     const container = document.getElementById("routingResult");
     container.innerHTML = "";
@@ -202,17 +264,16 @@ function renderRoutingTable(routes) {
     routes.forEach((route, routeIndex) => {
 
         let rows = "";
-        route.outlets.forEach((o, i) => {
 
+        route.outlets.forEach((o, i) => {
             rows += `
                 <tr>
                     <td>${i + 1}</td>
-                    <td>${o.name}</td>
+
+                    <td contenteditable="true" class="col-name">${o.name}</td>
 
                     <td>
-                        <select class="edit-day day-dropdown"
-                            data-route-index="${routeIndex}"
-                            data-outlet-index="${i}">
+                        <select class="edit-day day-dropdown" data-route-index="${routeIndex}" data-outlet-index="${i}">
                             ${Object.keys(DAY_ORDER).map(d =>
                                 `<option value="${d}" ${d === route.day ? "selected" : ""}>${d}</option>`
                             ).join("")}
@@ -220,18 +281,23 @@ function renderRoutingTable(routes) {
                     </td>
 
                     <td>
-                        <select class="edit-sales sales-dropdown"
-                            data-route-index="${routeIndex}"
-                            data-outlet-index="${i}">
+                        <select class="edit-sales sales-dropdown" data-route-index="${routeIndex}" data-outlet-index="${i}">
                             ${getSalesList().map(s =>
-                                `<option value="${s}" ${s === route.sales ? 'selected' : ''}>${s}</option>`
+                                `<option value="${s}" ${s === route.sales ? "selected" : ""}>${s}</option>`
                             ).join("")}
                         </select>
                     </td>
 
-                    <td>${o.latitude}</td>
-                    <td>${o.longitude}</td>
-                    <td>${o.distance.toFixed(2)} km</td>
+                    <td contenteditable="true" class="col-lat">${o.latitude}</td>
+                    <td contenteditable="true" class="col-lng">${o.longitude}</td>
+                    <td class="col-distance">${o.distance ? o.distance.toFixed(2) + " km" : "-"}</td>
+
+                    <td>
+                        <button class="btn-delete" data-route-index="${routeIndex}" data-outlet-index="${i}"
+                            style="padding:4px 8px;background:#E74C3C;color:white;border:none;border-radius:6px;cursor:pointer;">
+                            🗑️ Hapus
+                        </button>
+                    </td>
                 </tr>
             `;
         });
@@ -240,7 +306,7 @@ function renderRoutingTable(routes) {
             <div style="margin-bottom:30px;">
                 <h3>📅 ${route.day} — 👤 ${route.sales} (${route.outlets.length})</h3>
 
-                <table class="data-table">
+                <table class="data-table" data-route-index="${routeIndex}">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -250,16 +316,124 @@ function renderRoutingTable(routes) {
                             <th>Lat</th>
                             <th>Lng</th>
                             <th>Jarak</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${rows}
-                    </tbody>
+                    <tbody>${rows}</tbody>
                 </table>
+
+                <div style="margin-top:10px;display:flex;gap:12px;">
+                    <button onclick="insertOutletRow(${routeIndex})"
+                        style="padding:6px 14px;border-radius:8px;border:1px dashed #999;cursor:pointer">
+                        ➕ Tambah Outlet
+                    </button>
+
+                    <button onclick="saveRoute(${routeIndex})"
+                        style="padding:6px 18px;border-radius:8px;background:#27AE60;color:white;border:none;cursor:pointer">
+                        💾 Save
+                    </button>
+                </div>
             </div>
         `;
     });
 }
+
+/*INI BUAT FUNGSI DELETE */
+document.addEventListener("click", e => {
+    const btn = e.target.closest(".btn-delete");
+    if (!btn) return;
+
+    const routeIndex = Number(btn.dataset.routeIndex);
+    const outletIndex = Number(btn.dataset.outletIndex);
+
+    deleteOutletRow(routeIndex, outletIndex);
+});
+
+function deleteOutletRow(routeIndex, outletIndex) {
+    if (!confirm("Apakah Anda yakin ingin menghapus outlet ini?")) return;
+
+    const route = window.generatedRoutes[routeIndex];
+    if (!route) return;
+
+    route.outlets.splice(outletIndex, 1);
+
+    // Bersihkan route kosong
+    window.generatedRoutes = window.generatedRoutes.filter(r => r.outlets.length);
+
+    // Simpan ke sessionStorage
+    sessionStorage.setItem("generated_routes", JSON.stringify(window.generatedRoutes));
+
+    // Render ulang tabel & map
+    renderRoutingTable(window.generatedRoutes);
+    renderMapByDay(route.day);
+}
+
+
+
+/* =====================================================
+   HANDLE CHANGE DAY / SALES
+===================================================== */
+document.addEventListener("change", e => {
+    if (e.target.classList.contains("edit-day")) {
+        const routeIndex = e.target.dataset.routeIndex;
+        const outletIndex = e.target.dataset.outletIndex;
+        moveOutletToNewDay(routeIndex, outletIndex, e.target.value);
+    }
+
+    if (e.target.classList.contains("edit-sales")) {
+        const routeIndex = e.target.dataset.routeIndex;
+        const outletIndex = e.target.dataset.outletIndex;
+        moveOutletToNewSales(routeIndex, outletIndex, e.target.value);
+    }
+});
+
+function moveOutletToNewDay(routeIndex, outletIndex, newDay) {
+    const route = window.generatedRoutes[routeIndex];
+    const outlet = route.outlets[outletIndex];
+
+    route.outlets.splice(outletIndex, 1);
+
+    let targetRoute = window.generatedRoutes.find(r => r.day===newDay && r.sales===route.sales);
+    if (!targetRoute) {
+        targetRoute = { day:newDay, sales:route.sales, outlets:[] };
+        window.generatedRoutes.push(targetRoute);
+    }
+
+    targetRoute.outlets.push(outlet);
+    window.generatedRoutes = window.generatedRoutes.filter(r => r.outlets.length);
+
+    sortGeneratedRoutes();
+    renderRoutingTable(window.generatedRoutes);
+    renderMapByDay(newDay);
+}
+
+function moveOutletToNewSales(routeIndex, outletIndex, newSales) {
+    const route = window.generatedRoutes[routeIndex];
+    const outlet = route.outlets[outletIndex];
+
+    route.outlets.splice(outletIndex, 1);
+
+    let targetRoute = window.generatedRoutes.find(r => r.day===route.day && r.sales===newSales);
+    if (!targetRoute) {
+        targetRoute = { day:route.day, sales:newSales, outlets:[] };
+        window.generatedRoutes.push(targetRoute);
+    }
+
+    targetRoute.outlets.push(outlet);
+    window.generatedRoutes = window.generatedRoutes.filter(r => r.outlets.length);
+
+    sortGeneratedRoutes();
+    renderRoutingTable(window.generatedRoutes);
+    renderMapByDay(route.day);
+}
+
+function sortGeneratedRoutes() {
+    window.generatedRoutes.sort((a,b)=>{
+        if(a.sales!==b.sales) return a.sales.localeCompare(b.sales);
+        return DAY_ORDER[a.day]-DAY_ORDER[b.day];
+    });
+}
+
 document.addEventListener("change", function (e) {
     if (!e.target.classList.contains("edit-day")) return;
 
