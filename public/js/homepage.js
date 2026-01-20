@@ -38,7 +38,7 @@ const routingLayer = L.layerGroup().addTo(map);
    COLOR BY DAY
 =============================== */
 const dayColors = {
-    "Senin":   "#ffffff",
+    "Senin":   "#696969",
     "Selasa": "#1e90ff",
     "Rabu":   "#ff3333",
     "Kamis":  "#2ecc71",
