@@ -7,33 +7,51 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // tampilkan halaman login
-    public function showLogin()
-    {
-        return view('login');
-    }
+    /**
+     * Tampilkan halaman login
+     */
+public function showLogin(Request $request)
+{
+    return view('login', [
+        'redirect' => $request->redirect
+    ]);
+}
 
-    // proses login
+
+    /**
+     * Proses login
+     */
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $credentials = $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required',
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
 
-            // kalau user tadi mau ke /map
-            return redirect()->intended('/map');
+        if ($request->redirect === 'kiriman') {
+            return redirect()->route('homepage.kiriman');
         }
 
-        return back()->withErrors([
-            'login' => 'Email atau password salah',
-        ]);
+        if ($request->redirect === 'map') {
+            return redirect()->route('map');
+        }
+
+        // fallback
+        return redirect()->route('map');
     }
 
-    // logout
+    return back()->withErrors([
+        'login' => 'Email atau password salah',
+    ]);
+}
+
+
+    /**
+     * Logout
+     */
     public function logout(Request $request)
     {
         Auth::logout();

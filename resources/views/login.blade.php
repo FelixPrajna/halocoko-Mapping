@@ -14,14 +14,17 @@
         <p class="error">{{ $errors->first('login') }}</p>
     @endif
 
-    <form method="POST" action="/login">
-        @csrf
+<form method="POST" action="/login">
+    @csrf
 
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
+    <input type="hidden" name="redirect" value="{{ $redirect ?? '' }}">
 
-        <button type="submit">Login</button>
-    </form>
+    <input type="email" name="email" required>
+    <input type="password" name="password" required>
+
+    <button type="submit">Login</button>
+</form>
+
 </div>
 
 </body>

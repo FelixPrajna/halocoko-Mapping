@@ -12,15 +12,24 @@
 <div class="overlay"></div>
 
 <section class="welcome">
-    <h1>Selamat Datang di halocoko Route</h1>
+    <h1>Selamat Datang di Halocoko Route</h1>
     <p>
         Platform pemetaan rute modern untuk membantu perjalananmu
         menjadi lebih cepat, akurat, dan efisien.
     </p>
 
-    <a href="{{ auth()->check() ? '/map' : '/login' }}" class="btn-start">
-        Mulai Mapping →
-    </a>
+    <div class="btn-group">
+        <!-- MULAI MAPPING -->
+        <a href="{{ route('login', ['redirect' => 'map']) }}" class="btn-start">
+            🗺️ Mulai Mapping
+        </a>
+
+        <!-- BUAT RUTE KIRIMAN -->
+        <a href="{{ route('login', ['redirect' => 'kiriman']) }}" class="btn-secondary">
+            🚚 Buat Rute Kiriman
+        </a>
+
+    </div>
 </section>
 
 <script src="{{ asset('js/welcome.js') }}"></script>
