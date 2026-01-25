@@ -5,7 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OutletController;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\WarehouseController;
-use App\Http\Controllers\WarehouseController as ControllersWarehouseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,27 +25,37 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 
 /*
 |--------------------------------------------------------------------------
+| API (TANPA AUTH - DIPANGGIL JS)
+|--------------------------------------------------------------------------
+*/
+Route::get('/api/warehouses', [WarehouseController::class, 'index']);
+Route::post('/api/warehouses', [WarehouseController::class, 'store']);
+
+Route::get('/api/outlets', [OutletController::class, 'api']);
+
+/*
+|--------------------------------------------------------------------------
 | PROTECTED (WAJIB LOGIN)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
     /*
-    |==================== MAP ====================
+    |================ MAP ====================
     */
     Route::get('/map', function () {
         return view('homepage');
     })->name('map');
 
     /*
-    |================ ROUTE KIRIMAN ==============
+    |================ ROUTE KIRIMAN ==========
     */
     Route::get('/kiriman', function () {
         return view('homepagekiriman');
     })->name('homepage.kiriman');
 
     /*
-    |================ DASHBOARD ==================
+    |================ DASHBOARD ==============
     */
     Route::get('/create', function () {
         $outlets = \App\Models\Outlet::all();
@@ -54,26 +63,13 @@ Route::middleware(['auth'])->group(function () {
     })->name('create');
 
     /*
-    |================ OUTLET =====================
+    |================ OUTLET UPLOAD ==========
     */
     Route::post('/upload', [OutletController::class, 'upload'])
         ->name('outlet.upload');
 
-    Route::get('/api/outlets', [OutletController::class, 'api'])
-        ->name('api.outlets');
-
     /*
-    |================ WAREHOUSE (INI YANG KURANG) =================
-    | dipakai oleh homepagekiriman.js
-    */
-    Route::get('/api/warehouses', [WarehouseController::class, 'index'])
-        ->name('warehouse.index');
-
-    Route::post('/api/warehouses', [WarehouseController::class, 'store'])
-        ->name('warehouse.store');
-
-    /*
-    |================ ROUTING ====================
+    |================ ROUTING ================
     */
     Route::post('/api/routing/generate', [RoutingController::class, 'generate'])
         ->name('routing.generate');
@@ -82,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('routing.save');
 
     /*
-    |================ LOGOUT =====================
+    |================ LOGOUT =================
     */
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');

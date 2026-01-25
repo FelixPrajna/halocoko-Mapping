@@ -1,248 +1,282 @@
-/* ================= GLOBAL ================= */
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-html, body {
-    height: 100%;
+body {
+    margin: 0;
+    background: linear-gradient(180deg, #2b1409, #3b1f11);
+    color: white;
 }
+
+
 
 /* ================= NAVBAR ================= */
+.navbar-wrapper {
+    position: fixed;
+    top: 16px;
+    width: 100%;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+}
+
 .navbar {
-    height: 60px;
-    background: #1f2937;
-    color: #ffffff;
+    width: 92%;
+    max-width: 1200px;
+    background: #eee9e6;
+    color: #333;
+
+    padding: 12px 24px;
+    border-radius: 18px;
+
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    align-items: center;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 
-.navbar-left {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.navbar-right {
+.nav-right {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
 }
 
-.user-info {
-    text-align: right;
-    font-size: 13px;
-    line-height: 1.2;
-}
-
-.user-name {
+.user .name {
     font-weight: bold;
 }
 
-.user-email {
-    opacity: 0.8;
+.user .email {
+    font-size: 12px;
+    color: #555;
 }
 
-/* ================= LOGOUT ================= */
 .btn-logout {
-    background: #ef4444;
+    background: #ff7a18;
     border: none;
+    padding: 8px 18px;
+    border-radius: 999px;
     color: white;
-    padding: 7px 14px;
-    border-radius: 6px;
     cursor: pointer;
 }
 
-.btn-logout:hover {
-    background: #dc2626;
+/* ================= HERO ================= */
+.hero {
+    padding-top: 140px;
+    text-align: center;
 }
 
-/* ================= MAP ================= */
-#map {
-    height: calc(100vh - 110px);
-    width: 100%;
-}
-
-/* ================= FOOTER ================= */
-.footer {
-    height: 50px;
-    background: #f3f4f6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    color: #374151;
-}
-
-/* ================= WAREHOUSE SECTION ================= */
-.warehouse-section {
-    background: #f9fafb;
-    padding: 30px 15px;
-}
-
-.warehouse-card {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-}
-
-.warehouse-card h3 {
-    margin-bottom: 20px;
-    font-size: 18px;
-    color: #1f2937;
-}
-
-/* ================= FORM ================= */
-.warehouse-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.form-row {
-    display: flex;
-    gap: 15px;
-}
-
-.form-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
+.hero h1 {
+    font-size: 36px;
     margin-bottom: 6px;
 }
 
-.form-group input {
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    font-size: 14px;
+.hero p {
+    opacity: 0.85;
+    margin-bottom: 26px;
 }
 
-.form-group input:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+/* ================= FORM GUDANG ================= */
+.warehouse-form {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-/* ================= BUTTON ================= */
-.btn-add {
-    align-self: flex-start;
-    margin-top: 10px;
-    background: #2563eb;
-    color: #ffffff;
-    padding: 10px 20px;
-    border-radius: 10px;
+.warehouse-form input {
+    width: 200px;
+    padding: 12px 16px;
+    border-radius: 999px;
     border: none;
-    font-size: 14px;
+    outline: none;
+}
+
+.warehouse-form button {
+    padding: 12px 24px;
+    border-radius: 999px;
+    border: none;
+    background: #ff7a18;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.btn-add:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
+/* ================= MAP ================= */
+.map-section {
+    padding: 40px 24px 20px;
 }
 
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-    }
-
-    .warehouse-card {
-        padding: 20px;
-    }
+#map {
+    height: 320px;
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+    border-radius: 20px;
+    overflow: hidden;
 }
+
+/* ================= MAP SIZE ================= */
+#map {
+    width: 100%;
+    height: 520px;       /* 🔥 BESARIN DI SINI */
+    border-radius: 18px;
+    margin-top: 24px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+
+    touch-action: pan-x pan-y pinch-zoom; /* tetap bisa zoom map */
+}
+
 
 /* ================= UPLOAD CSV ================= */
 .upload-section {
-    background: #f9fafb;
-    padding: 30px 15px 50px;
+    padding: 40px 20px 60px;
+    display: flex;
+    justify-content: center;
 }
 
 .upload-card {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    border-radius: 22px;
+    padding: 28px 26px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    text-align: center;
 }
 
 .upload-card h3 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    color: #1f2937;
+    margin-bottom: 6px;
 }
 
-/* ================= UPLOAD BOX ================= */
+.upload-desc {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* upload box */
 .upload-box {
-    position: relative;
-    border: 2px dashed #c7d2fe;
-    border-radius: 12px;
-    padding: 30px;
-    text-align: center;
-    background: #f8fafc;
+    border: 2px dashed #ccc;
+    border-radius: 18px;
+    padding: 28px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all .25s ease;
+    background: #fafafa;
 }
 
 .upload-box:hover {
-    background: #eef2ff;
-    border-color: #6366f1;
+    border-color: #ff7a18;
+    background: #fff5ec;
 }
 
-.upload-box input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
+.upload-box input {
+    display: none;
 }
 
-.upload-box label {
-    font-size: 14px;
-    color: #1e3a8a;
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
 }
 
-.file-hint {
-    display: block;
-    margin-top: 8px;
+.upload-icon {
+    font-size: 36px;
+}
+
+.upload-content strong {
+    font-size: 15px;
+}
+
+.upload-content small {
     font-size: 12px;
-    color: #6b7280;
+    color: #777;
 }
 
-/* ================= BUTTON ================= */
+/* button */
 .btn-upload {
-    margin-top: 15px;
-    background: #16a34a;
-    color: #ffffff;
+    margin-top: 6px;
+    background: linear-gradient(135deg, #ff7a18, #ff9f43);
     border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 14px;
+    padding: 12px;
+    border-radius: 999px;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .btn-upload:hover {
-    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0,0,0,.25);
 }
 
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-    .upload-card {
-        padding: 20px;
-    }
+.upload-hint {
+    font-size: 12px;
+    color: #666;
 }
+
+.upload-hint code {
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.result-section {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0 80px;
+}
+
+.result-card {
+    width: 90%;
+    max-width: 900px;
+    background: #fff;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+
+.result-card h3 {
+    margin-bottom: 16px;
+}
+
+#resultTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#resultTable th,
+#resultTable td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+#resultTable th {
+    background: #f5f5f5;
+    font-weight: 600;
+}
+
+.empty-text {
+    text-align: center;
+    color: #888;
+}
+
+/* ================= FOOTER ================= */
+footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
