@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Halocoko | Rute Kiriman</title>
-    <meta name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -31,7 +30,7 @@
 
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button class="btn-logout">Logout</button>
+                <button class="btn-logout" type="submit">Logout</button>
             </form>
         </div>
     </div>
@@ -40,13 +39,13 @@
 <!-- ================= HERO ================= -->
 <section class="hero">
     <h1>Dashboard Gudang</h1>
-    <p>Masukkan lokasi gudang, marker akan muncul di map.</p>
+    <p>Masukkan lokasi gudang, marker akan muncul di peta.</p>
 
     <div class="warehouse-form">
         <input type="text" id="warehouseName" placeholder="Nama Gudang">
         <input type="text" id="warehouseLat" placeholder="Latitude">
         <input type="text" id="warehouseLng" placeholder="Longitude">
-        <button id="btnAddWarehouse">Tambahkan Gudang</button>
+        <button type="button" id="btnAddWarehouse">Tambah Gudang</button>
     </div>
 </section>
 
@@ -55,63 +54,91 @@
     <div id="map"></div>
 </section>
 
-<!-- ================= UPLOAD CSV ================= -->
+<!-- ================= UPLOAD FILE ================= -->
 <section class="upload-section">
     <div class="upload-card">
-        <h3>📄 Upload Data Outlet (CSV)</h3>
+
+        <h3>📄 Upload Data Outlet</h3>
         <p class="upload-desc">
-            Upload file CSV berisi daftar outlet untuk ditampilkan di map.
+            Upload file <strong>CSV atau Excel (.xlsx)</strong>.
+            Data akan diproses setelah tombol Upload ditekan.
         </p>
 
-        <form class="upload-form" enctype="multipart/form-data">
-            @csrf
+        <div class="upload-ui">
 
-            <label class="upload-box">
-                <input type="file" id="csvFile" accept=".csv">
-                <div class="upload-content">
-                    <span class="upload-icon">📂</span>
-                    <strong>Klik untuk upload</strong>
-                    <small>atau drag & drop file CSV</small>
-                </div>
-            </label>
+            <!-- FILE PICKER -->
+            <div class="file-picker">
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept=".csv,.xlsx"
+                    hidden
+                >
 
-            <button type="submit" class="btn-upload">
-                ⬆️ Upload CSV
+                <button
+                    type="button"
+                    id="btnChooseFile"
+                    class="btn-choose"
+                >
+                    📂 Pilih File
+                </button>
+
+                <span id="fileNameText" class="file-name">
+                    Belum ada file dipilih
+                </span>
+            </div>
+
+            <!-- UPLOAD BUTTON -->
+            <button
+                type="button"
+                id="btnUpload"
+                class="btn-upload"
+                disabled
+            >
+                ⬆️ Upload
             </button>
 
-            <div class="upload-hint">
-                Format file: <code>nama_toko, latitude, longitude</code>
-            </div>
-        </form>
+        </div>
+
+        <div class="upload-hint">
+            Kolom wajib:
+            <code>
+                Kode Toko, Nama Toko, Invoice No,
+                Item Produk, Qty, Value, Latitude, Longitude
+            </code>
+        </div>
+
     </div>
 </section>
 
 
-
+<!-- ================= RESULT ================= -->
 <section class="result-section">
     <div class="result-card">
-        <h3>📋 Hasil Upload CSV</h3>
+        <h3>📋 Hasil Upload</h3>
 
         <table id="resultTable">
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Nama Outlet</th>
+                    <th>Kode Toko</th>
+                    <th>Nama Toko</th>
+                    <th>Invoice</th>
+                    <th>Item Produk</th>
+                    <th>Qty</th>
+                    <th>Value</th>
                     <th>Latitude</th>
                     <th>Longitude</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td colspan="4" class="empty-text">
-                        Belum ada data
-                    </td>
+                <tr class="empty-row">
+                    <td colspan="9">Belum ada data</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </section>
-
 
 <!-- ================= FOOTER ================= -->
 <footer>
@@ -120,6 +147,7 @@
 
 <!-- ================= SCRIPT ================= -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="{{ asset('js/homepagekiriman.js') }}"></script>
 
 </body>
