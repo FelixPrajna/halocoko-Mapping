@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    /* ================= GLOBAL DATA ================= */
+    let currentRows = [];
+
     /* ================= MAP ================= */
     const map = L.map("map").setView([-6.2, 106.8], 11);
 
@@ -36,15 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let warehouseMarker = null;
 
-    // LOAD WAREHOUSE DARI STORAGE
     const savedWarehouse = localStorage.getItem("warehouse");
     if (savedWarehouse) {
         const w = JSON.parse(savedWarehouse);
         warehouseMarker = L.marker([w.lat, w.lng], { icon: warehouseIcon })
             .addTo(map)
             .bindPopup(`<b>Gudang</b><br>${w.name}`);
-
-        map.setView([w.lat, w.lng], 14);
     }
 
     btnAddWarehouse.addEventListener("click", () => {
@@ -52,81 +52,55 @@ document.addEventListener("DOMContentLoaded", () => {
         const lat  = parseFloat(warehouseLat.value);
         const lng  = parseFloat(warehouseLng.value);
 
-        if (!name || isNaN(lat) || isNaN(lng)) {
-            alert("❌ Data gudang tidak valid");
-            return;
-        }
+        if (!name || isNaN(lat) || isNaN(lng)) return alert("❌ Data gudang tidak valid");
 
-        // HAPUS MARKER LAMA
-        if (warehouseMarker) {
-            map.removeLayer(warehouseMarker);
-        }
+        if (warehouseMarker) map.removeLayer(warehouseMarker);
 
-        // TAMBAH MARKER BARU
         warehouseMarker = L.marker([lat, lng], { icon: warehouseIcon })
             .addTo(map)
             .bindPopup(`<b>Gudang</b><br>${name}`)
             .openPopup();
 
-        // SIMPAN KE STORAGE
-        localStorage.setItem("warehouse", JSON.stringify({
-            name, lat, lng
-        }));
-
-        map.setView([lat, lng], 14);
+        localStorage.setItem("warehouse", JSON.stringify({ name, lat, lng }));
     });
 
     /* ================= FILE ================= */
-    const fileInput     = document.getElementById("fileInput");
+    const fileInput = document.getElementById("fileInput");
     const btnChooseFile = document.getElementById("btnChooseFile");
-    const fileNameText  = document.getElementById("fileNameText");
-    const btnUpload     = document.getElementById("btnUpload");
-    const tableBody     = document.querySelector("#resultTable tbody");
+    const fileNameText = document.getElementById("fileNameText");
+    const btnUpload = document.getElementById("btnUpload");
+    const tableBody = document.querySelector("#resultTable tbody");
+    const btnSaveEdit = document.getElementById("btnSaveEdit");
 
     let selectedFile = null;
 
     const REQUIRED_COLUMNS = [
-        "kode toko",
-        "nama toko",
-        "invoice no",
-        "item produk",
-        "qty",
-        "value",
-        "latitude",
-        "longitude"
+        "kode toko","nama toko","invoice no",
+        "item produk","qty","value","latitude","longitude"
     ];
 
-    btnChooseFile.addEventListener("click", () => {
-        fileInput.click();
-    });
+    btnChooseFile.addEventListener("click", () => fileInput.click());
 
     fileInput.addEventListener("change", () => {
-        if (!fileInput.files.length) return;
-
         selectedFile = fileInput.files[0];
-        fileNameText.textContent = `📄 ${selectedFile.name}`;
+        if (!selectedFile) return;
+        fileNameText.textContent = selectedFile.name;
         btnUpload.disabled = false;
     });
 
     btnUpload.addEventListener("click", () => {
         if (!selectedFile) return;
-
         clearAll();
-
         const ext = selectedFile.name.split(".").pop().toLowerCase();
-
-        if (ext === "csv") readCSV(selectedFile);
-        else if (ext === "xlsx") readExcel(selectedFile);
-        else alert("❌ Format file tidak didukung");
+        ext === "csv" ? readCSV(selectedFile) :
+        ext === "xlsx" ? readExcel(selectedFile) :
+        alert("❌ Format tidak didukung");
     });
 
     /* ================= CSV ================= */
     function readCSV(file) {
         const reader = new FileReader();
-        reader.onload = e => {
-            const rows = csvToJson(e.target.result);
-            validateAndRender(rows);
-        };
+        reader.onload = e => validateAndRender(csvToJson(e.target.result));
         reader.readAsText(file);
     }
 
@@ -136,9 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const headers = lines[0].split(delimiter).map(h => h.toLowerCase());
 
         return lines.slice(1).map(line => {
-            const cols = line.split(delimiter);
             const obj = {};
-            headers.forEach((h, i) => obj[h] = cols[i]);
+            line.split(delimiter).forEach((v, i) => obj[headers[i]] = v);
             return obj;
         });
     }
@@ -149,104 +122,112 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.onload = e => {
             const wb = XLSX.read(e.target.result, { type: "array" });
             const sheet = wb.Sheets[wb.SheetNames[0]];
-            const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-            const rows = normalizeRows(rawRows);
+            const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" })
+                .map(r => Object.fromEntries(
+                    Object.entries(r).map(([k,v]) => [k.toLowerCase(), v])
+                ));
             validateAndRender(rows);
         };
         reader.readAsArrayBuffer(file);
     }
 
-    function normalizeRows(rows) {
-        return rows.map(row => {
-            const obj = {};
-            Object.keys(row).forEach(k => {
-                obj[k.toLowerCase()] = row[k];
-            });
-            return obj;
-        });
-    }
-
-    /* ================= VALIDATION ================= */
+    /* ================= VALIDATE ================= */
     function validateAndRender(rows) {
-        if (!rows.length) {
-            alert("❌ Upload gagal: File kosong");
-            return;
-        }
+        const cols = Object.keys(rows[0] || {});
+        const missing = REQUIRED_COLUMNS.filter(c => !cols.includes(c));
+        if (missing.length) return alert("❌ Kolom kurang:\n" + missing.join("\n"));
 
-        const columns = Object.keys(rows[0]);
-        const missing = REQUIRED_COLUMNS.filter(c => !columns.includes(c));
-
-        if (missing.length) {
-            alert(
-                "❌ Upload GAGAL!\n\nKolom berikut tidak ditemukan:\n" +
-                missing.map(m => `- ${m}`).join("\n")
-            );
-            return;
-        }
-
-        render(rows);
-        alert(`✅ Upload berhasil!\nFile: ${selectedFile.name}`);
+        currentRows = rows;
+        saveToStorage();
+        render(currentRows);
     }
 
     /* ================= RENDER ================= */
     function render(rows) {
-        tableBody.innerHTML = "";
-        let no = 0;
+        clearAll();
 
-        rows.forEach(r => {
-            const kode = r["kode toko"];
-            const nama = r["nama toko"];
-            const inv  = r["invoice no"];
-            const item = r["item produk"];
-            const qty  = r["qty"];
-            const val  = r["value"];
-            const lat  = parseFloat(r["latitude"]);
-            const lng  = parseFloat(r["longitude"]);
+        rows.forEach((r, i) => {
+            const lat = parseFloat(r["latitude"]);
+            const lng = parseFloat(r["longitude"]);
 
-            if (!nama || isNaN(lat) || isNaN(lng)) return;
-
-            no++;
-
-            const marker = L.marker([lat, lng], { icon: outletIcon })
-                .addTo(map)
-                .bindPopup(`
-    <b>${nama}</b><br>
-    <small>Kode Toko: ${kode}</small>
-`);
-
-
-            markers.push(marker);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                markers.push(
+                    L.marker([lat, lng], { icon: outletIcon })
+                        .addTo(map)
+                        .bindPopup(`<b>${r["nama toko"]}</b>`)
+                );
+            }
 
             tableBody.innerHTML += `
-                <tr class="dark-row">
-                    <td>${no}</td>
-                    <td>${kode}</td>
-                    <td>${nama}</td>
-                    <td>${inv}</td>
-                    <td>${item}</td>
-                    <td>${qty}</td>
-                    <td>${val}</td>
-                    <td>${lat}</td>
-                    <td>${lng}</td>
-                </tr>
-            `;
+                <tr>
+                    <td>${i + 1}</td>
+                    <td contenteditable>${r["kode toko"]}</td>
+                    <td contenteditable>${r["nama toko"]}</td>
+                    <td contenteditable>${r["invoice no"]}</td>
+                    <td contenteditable>${r["item produk"]}</td>
+                    <td contenteditable>${r["qty"]}</td>
+                    <td contenteditable>${r["value"]}</td>
+                    <td contenteditable>${r["latitude"]}</td>
+                    <td contenteditable>${r["longitude"]}</td>
+                </tr>`;
         });
 
-        const allMarkers = [...markers];
-        if (warehouseMarker) allMarkers.push(warehouseMarker);
+        if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds());
+    }
 
-        if (allMarkers.length) {
-            map.fitBounds(L.featureGroup(allMarkers).getBounds(), {
-                padding: [40, 40]
-            });
+    /* ================= SAVE EDIT ================= */
+    btnSaveEdit.addEventListener("click", () => {
+        const trs = tableBody.querySelectorAll("tr");
+        currentRows = [...trs].map(tr => {
+            const td = tr.querySelectorAll("td");
+            return {
+                "kode toko": td[1].innerText.trim(),
+                "nama toko": td[2].innerText.trim(),
+                "invoice no": td[3].innerText.trim(),
+                "item produk": td[4].innerText.trim(),
+                "qty": td[5].innerText.trim(),
+                "value": td[6].innerText.trim(),
+                "latitude": td[7].innerText.trim(),
+                "longitude": td[8].innerText.trim()
+            };
+        });
+
+        saveToStorage();
+        render(currentRows);
+        alert("✅ Perubahan berhasil disimpan");
+    });
+
+    function saveToStorage() {
+        localStorage.setItem("lastUploadRows", JSON.stringify(currentRows));
+    }
+
+    function loadFromStorage() {
+        const saved = localStorage.getItem("lastUploadRows");
+        if (saved) {
+            currentRows = JSON.parse(saved);
+            render(currentRows);
         }
     }
 
     function clearAll() {
         markers.forEach(m => map.removeLayer(m));
         markers.length = 0;
-        tableBody.innerHTML =
-            `<tr class="empty-row"><td colspan="9">Belum ada data</td></tr>`;
+        tableBody.innerHTML = "";
     }
 
+    loadFromStorage();
+});
+
+/* ================= RESULT DROPDOWN ================= */
+const resultToggle = document.getElementById("resultToggle");
+const resultContent = document.getElementById("resultContent");
+const resultArrow = document.getElementById("resultArrow");
+
+resultContent.style.maxHeight = "0px";
+let isOpen = false;
+
+resultToggle.addEventListener("click", () => {
+    isOpen = !isOpen;
+    resultContent.style.maxHeight = isOpen ? resultContent.scrollHeight + "px" : "0px";
+    resultArrow.textContent = isOpen ? "▲" : "▼";
 });

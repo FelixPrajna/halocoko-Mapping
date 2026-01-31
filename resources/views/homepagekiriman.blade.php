@@ -115,30 +115,50 @@
 <!-- ================= RESULT ================= -->
 <section class="result-section">
     <div class="result-card">
-        <h3>📋 Hasil Upload</h3>
 
-        <table id="resultTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Kode Toko</th>
-                    <th>Nama Toko</th>
-                    <th>Invoice</th>
-                    <th>Item Produk</th>
-                    <th>Qty</th>
-                    <th>Value</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="empty-row">
-                    <td colspan="9">Belum ada data</td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- HEADER DROPDOWN -->
+        <div class="result-header" id="resultToggle">
+            <span>📋 Hasil Upload</span>
+            <span class="arrow" id="resultArrow">▼</span>
+        </div>
+
+        <!-- ISI DROPDOWN -->
+        <div class="result-content" id="resultContent">
+            <div class="table-wrapper">
+                <table id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Kode Toko</th>
+                            <th>Nama Toko</th>
+                            <th>Invoice</th>
+                            <th>Item Produk</th>
+                            <th>Qty</th>
+                            <th>Value</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="empty-row">
+                            <td colspan="9">Belum ada data</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BUTTON SAVE -->
+            <div class="result-action">
+                <button id="btnSaveEdit" class="btn-save">
+                    💾 Simpan Perubahan
+                </button>
+            </div>
+        </div>
+
     </div>
 </section>
+
+
 
 <!-- ================= FOOTER ================= -->
 <footer>

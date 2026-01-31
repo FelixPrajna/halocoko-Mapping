@@ -407,3 +407,47 @@ footer {
     background: #fff7ed;
 }
 
+.result-card {
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.result-header {
+    background: linear-gradient(135deg, #ff8a00, #ff6a00);
+    color: #fff;
+    padding: 18px 24px;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.result-header .arrow {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.result-content {
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.btn-save {
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-save:hover {
+    background: #15803d;
+}
