@@ -65,21 +65,10 @@
         </p>
 
         <div class="upload-ui">
-
-            <!-- FILE PICKER -->
             <div class="file-picker">
-                <input
-                    type="file"
-                    id="fileInput"
-                    accept=".csv,.xlsx"
-                    hidden
-                >
+                <input type="file" id="fileInput" accept=".csv,.xlsx" hidden>
 
-                <button
-                    type="button"
-                    id="btnChooseFile"
-                    class="btn-choose"
-                >
+                <button type="button" id="btnChooseFile" class="btn-choose">
                     📂 Pilih File
                 </button>
 
@@ -88,16 +77,9 @@
                 </span>
             </div>
 
-            <!-- UPLOAD BUTTON -->
-            <button
-                type="button"
-                id="btnUpload"
-                class="btn-upload"
-                disabled
-            >
+            <button type="button" id="btnUpload" class="btn-upload" disabled>
                 ⬆️ Upload
             </button>
-
         </div>
 
         <div class="upload-hint">
@@ -111,18 +93,15 @@
     </div>
 </section>
 
-
-<!-- ================= RESULT ================= -->
+<!-- ================= RESULT UPLOAD ================= -->
 <section class="result-section">
     <div class="result-card">
 
-        <!-- HEADER DROPDOWN -->
         <div class="result-header" id="resultToggle">
             <span>📋 Hasil Upload</span>
             <span class="arrow" id="resultArrow">▼</span>
         </div>
 
-        <!-- ISI DROPDOWN -->
         <div class="result-content" id="resultContent">
             <div class="table-wrapper">
                 <table id="resultTable">
@@ -147,7 +126,6 @@
                 </table>
             </div>
 
-            <!-- BUTTON SAVE -->
             <div class="result-action">
                 <button id="btnSaveEdit" class="btn-save">
                     💾 Simpan Perubahan
@@ -158,7 +136,81 @@
     </div>
 </section>
 
+<!-- ================= PENGATURAN ROUTING ================= -->
+<section class="routing-setting-section">
 
+    <div class="routing-card">
+
+        <div class="routing-header">
+            ⚙️ Pengaturan Routing
+        </div>
+
+        <div class="routing-body">
+
+            <!-- INPUT MOTORIST TANPA LIMIT -->
+            <div class="form-group">
+                <label for="motoristCount">Jumlah Motorist</label>
+                <input
+                    type="number"
+                    id="motoristCount"
+                    class="input-motorist"
+                    min="1"
+                    value="1"
+                    placeholder="Masukkan jumlah motorist"
+                >
+                <small class="motorist-hint">
+                    Isi bebas sesuai kebutuhan (minimal 1)
+                </small>
+            </div>
+
+            <!-- BUTTON -->
+            <button id="btnGenerateRoute" class="btn-generate-route">
+                🚀 Generate Route
+            </button>
+
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ================================================= -->
+<!-- ================= HASIL ROUTING ================= -->
+<!-- ================================================= -->
+<section id="routingResultWrapper" class="routing-result-section" style="display:none;">
+
+    <div class="routing-card">
+
+        <div class="routing-header">
+            📊 Hasil Routing Motorist
+        </div>
+
+        <!-- SUMMARY -->
+        <div id="routingSummary" class="routing-summary">
+            <!-- diisi JS -->
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-wrapper">
+            <table id="routingTable">
+                <thead>
+                    <tr>
+                        <th>Motorist</th>
+                        <th>Urutan</th>
+                        <th>Nama Toko</th>
+                        <th>Jarak (km)</th>
+                        <th>Estimasi Waktu</th>
+                    </tr>
+                </thead>
+                <tbody id="routingTableBody">
+                    <!-- diisi JS -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</section>
 
 <!-- ================= FOOTER ================= -->
 <footer>
