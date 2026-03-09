@@ -198,8 +198,11 @@
                         <th>Motorist</th>
                         <th>Urutan</th>
                         <th>Nama Toko</th>
-                        <th>Jarak (km)</th>
+                        <th>Item Produk</th>
+                        <th>Quantity</th>
+                        <th>Jarak(km)</th>
                         <th>Estimasi Waktu</th>
+                        <th>Bensin</th>
                     </tr>
                 </thead>
                 <tbody id="routingTableBody">
