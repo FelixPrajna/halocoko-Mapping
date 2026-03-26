@@ -324,77 +324,139 @@ return Object.values(map);
 
 /* ================= ROUTING ================= */
 
-function buatRouting(outlets,motorCount){
 
-const tbody=document.getElementById("routingTableBody");
-const summary=document.getElementById("routingSummary");
 
-tbody.innerHTML="";
-summary.innerHTML="";
+function buatRouting(outlets, motorCount){
 
-const speed=30;
-const fuelRate=0.04;
+const tbody = document.getElementById("routingTableBody");
+const summary = document.getElementById("routingSummary");
 
-let totalDist=0;
-let totalTime=0;
-let totalFuel=0;
+tbody.innerHTML = "";
+summary.innerHTML = "";
 
-const groups=Array.from({length:motorCount},()=>[]);
+const speed = 30;
+const fuelRate = 0.04;
 
-outlets.forEach((o,i)=>{
-groups[i%motorCount].push(o);
-});
+let totalDist = 0;
+let totalTime = 0;
+let totalFuel = 0;
 
-groups.forEach((group,index)=>{
+/* ================= BATCHING ================= */
 
-let current={lat:warehouse.lat,lng:warehouse.lng};
+let batches = [];
+let currentBatch = [];
+let currentQty = 0;
 
-let distSum=0;
-let timeSum=0;
-let fuelSum=0;
+outlets.forEach(o => {
 
-group.forEach((o,urutan)=>{
+    const qty = o.qty;
 
-const dist=getDistance(current.lat,current.lng,o.lat,o.lng);
-const time=(dist/speed)*60;
-const fuel=dist*fuelRate;
-
-tbody.insertAdjacentHTML("beforeend",`
-<tr>
-<td>Motorist ${index+1}</td>
-<td>${urutan+1}</td>
-<td>${o.nama}</td>
-<td>${o.items.join(", ")}</td>
-<td>${o.qty}</td>
-<td>${dist.toFixed(2)}</td>
-<td>${formatTime(time)}</td>
-<td>${fuel.toFixed(2)}</td>
-</tr>
-`);
-
-distSum+=dist;
-timeSum+=time;
-fuelSum+=fuel;
-
-current=o;
+    if(currentBatch.length < 2 && (currentQty + qty) <= 25){
+        currentBatch.push(o);
+        currentQty += qty;
+    }else{
+        batches.push(currentBatch);
+        currentBatch = [o];
+        currentQty = qty;
+    }
 
 });
 
-summary.innerHTML+=`
-<hr>
-<b>Motorist ${index+1}</b><br>
-Jarak ${distSum.toFixed(2)} km<br>
-Waktu ${formatTime(timeSum)}<br>
-Bensin ${fuelSum.toFixed(2)} L
-`;
+if(currentBatch.length) batches.push(currentBatch);
 
-totalDist+=distSum;
-totalTime+=timeSum;
-totalFuel+=fuelSum;
+/* ================= BAGI MOTORIST ================= */
+
+const motorGroups = Array.from({length: motorCount}, () => []);
+
+batches.forEach((batch, i) => {
+    motorGroups[i % motorCount].push(batch);
+});
+
+/* ================= ROUTING ================= */
+
+motorGroups.forEach((motorBatches, motorIndex) => {
+
+    let motorDist = 0;
+    let motorTime = 0;
+    let motorFuel = 0;
+
+    motorBatches.forEach((batch, batchIndex) => {
+
+        let current = { lat: warehouse.lat, lng: warehouse.lng };
+
+        let batchDist = 0;
+        let batchTime = 0;
+        let batchFuel = 0;
+
+        batch.forEach((o, i) => {
+
+            const dist = getDistance(current.lat, current.lng, o.lat, o.lng);
+            const time = (dist / speed) * 60;
+            const fuel = dist * fuelRate;
+
+            tbody.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td>Motorist ${motorIndex+1}</td>
+                <td>Batch ${batchIndex+1} - Stop ${i+1}</td>
+                <td>${o.nama}</td>
+                <td>${o.items.join(", ")}</td>
+                <td>${o.qty}</td>
+                <td>${dist.toFixed(2)}</td>
+                <td>${formatTime(time)}</td>
+                <td>${fuel.toFixed(2)}</td>
+            </tr>
+            `);
+
+            batchDist += dist;
+            batchTime += time;
+            batchFuel += fuel;
+
+            current = o;
+
+        });
+
+        // balik ke gudang
+        const backDist = getDistance(current.lat, current.lng, warehouse.lat, warehouse.lng);
+        const backTime = (backDist / speed) * 60;
+        const backFuel = backDist * fuelRate;
+
+        batchDist += backDist;
+        batchTime += backTime;
+        batchFuel += backFuel;
+
+        tbody.insertAdjacentHTML("beforeend", `
+        <tr style="background:#f1f1f1;">
+            <td>Motorist ${motorIndex+1}</td>
+            <td colspan="4"><b>🔁 Kembali ke Gudang</b></td>
+            <td>${backDist.toFixed(2)}</td>
+            <td>${formatTime(backTime)}</td>
+            <td>${backFuel.toFixed(2)}</td>
+        </tr>
+        `);
+
+        motorDist += batchDist;
+        motorTime += batchTime;
+        motorFuel += batchFuel;
+
+    });
+
+    summary.innerHTML += `
+    <hr>
+    <b>Motorist ${motorIndex+1}</b><br>
+    Total Jarak ${motorDist.toFixed(2)} km<br>
+    Total Waktu ${formatTime(motorTime)}<br>
+    Total Bensin ${motorFuel.toFixed(2)} L
+    `;
+
+    totalDist += motorDist;
+    totalTime += motorTime;
+    totalFuel += motorFuel;
 
 });
 
-summary.innerHTML+=`
+/* ================= TOTAL ================= */
+
+summary.innerHTML += `
 <hr>
 <b>TOTAL SEMUA MOTORIST</b><br>
 Jarak ${totalDist.toFixed(2)} km<br>
@@ -402,11 +464,9 @@ Waktu ${formatTime(totalTime)}<br>
 Bensin ${totalFuel.toFixed(2)} L
 `;
 
-document.getElementById("routingResultWrapper").style.display="block";
+document.getElementById("routingResultWrapper").style.display = "block";
 
-}
-
-/* ================= DISTANCE ================= */
+}/* ================= DISTANCE ================= */
 
 function getDistance(lat1,lng1,lat2,lng2){
 
