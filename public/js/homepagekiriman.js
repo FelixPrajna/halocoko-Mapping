@@ -170,6 +170,7 @@ markers.length=0;
 tableBody.innerHTML="";
 
 rows.forEach((r,i)=>{
+
 const lat=parseFloat(r["latitude"]);
 const lng=parseFloat(r["longitude"]);
 
@@ -181,8 +182,11 @@ L.marker([lat,lng],{icon:outletIcon})
 );
 }
 
-tableBody.innerHTML+=`
-<tr>
+/* ROW UTAMA */
+const rowId = `row-${i}`;
+
+tableBody.innerHTML += `
+<tr class="main-row" data-target="${rowId}" style="cursor:pointer;">
 <td>${i+1}</td>
 <td>${r["kode toko"]}</td>
 <td>${r["nama toko"]}</td>
@@ -192,9 +196,63 @@ tableBody.innerHTML+=`
 <td>${r["value"]}</td>
 <td>${r["latitude"]}</td>
 <td>${r["longitude"]}</td>
-</tr>`;
+</tr>
+
+/* DROPDOWN ROW */
+<tr id="${rowId}" class="dropdown-row" style="display:none; background:#f9f9f9;">
+<td colspan="9">
+<b>Detail Pengiriman:</b><br>
+Produk : ${r["item produk"]}<br>
+Qty : ${r["qty"]}<br>
+Value : ${r["value"]}<br>
+Invoice : ${r["invoice no"]}
+</td>
+</tr>
+`;
 });
+
+/* ================= DROPDOWN HASIL UPLOAD (HEADER) ================= */
+
+const resultToggle = document.getElementById("resultToggle");
+const resultContent = document.getElementById("resultContent");
+const resultArrow = document.getElementById("resultArrow");
+
+let isOpen = true;
+
+resultToggle?.addEventListener("click", () => {
+
+if(isOpen){
+  resultContent.style.display = "none";
+  resultArrow.style.transform = "rotate(180deg)";
+}else{
+  resultContent.style.display = "block";
+  resultArrow.style.transform = "rotate(0deg)";
 }
+
+isOpen = !isOpen;
+
+});
+
+/* ================= EVENT DROPDOWN ================= */
+
+document.querySelectorAll(".main-row").forEach(row=>{
+row.addEventListener("click",()=>{
+
+const targetId = row.getAttribute("data-target");
+const dropdown = document.getElementById(targetId);
+
+/* toggle */
+if(dropdown.style.display === "none"){
+dropdown.style.display = "table-row";
+}else{
+dropdown.style.display = "none";
+}
+
+});
+});
+
+}
+
 
 /* ================= ROUTING ================= */
 
