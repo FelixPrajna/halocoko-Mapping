@@ -691,3 +691,40 @@ footer {
     }
 }
 
+.goog-te-banner-frame {
+    display: none !important;
+}
+
+body {
+    top: 0px !important;
+}
+
+.goog-te-gadget {
+    display: none !important;
+}
+
+/* ================= HIDE GOOGLE BAR ================= */
+
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+}
+
+body {
+    top: 0px !important;
+}
+
+/* HIDE ICON GOOGLE */
+.goog-te-gadget {
+    display: none !important;
+}
+
+/* OPTIONAL (extra bersih) */
+.goog-tooltip,
+.goog-tooltip:hover {
+    display: none !important;
+}
+
+.goog-text-highlight {
+    background: none !important;
+    box-shadow: none !important;
+}

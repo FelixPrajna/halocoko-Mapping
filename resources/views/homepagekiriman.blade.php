@@ -16,6 +16,9 @@
 <body>
 
 <!-- ================= NAVBAR ================= -->
+ <div id="google_translate_element" style="display:none;"></div>
+
+<button id="btnLang">🌐</button>
 <nav class="navbar-wrapper">
     <div class="navbar">
         <div class="nav-left">
@@ -224,6 +227,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="{{ asset('js/homepagekiriman.js') }}"></script>
+<script src="{{ asset('js/translate.js') }}"></script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
 </html>

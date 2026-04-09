@@ -1,3 +1,4 @@
+<?php include 'lang.blade.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -68,6 +69,11 @@
     </div>
 </nav>
 
+<form method="POST" action="set_lang.php">
+    <button name="lang" value="id">🇮🇩 Indonesia</button>
+    <button name="lang" value="zh">🇨🇳 中文</button>
+</form>
+
 <!-- ================= FILTER ================= -->
 <div class="filter-box">
     <label>Hari</label>
@@ -109,6 +115,7 @@
 <!-- ================= SCRIPT ================= -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ asset('js/homepage.js') }}"></script>
+<script src="translate.js"></script>
 
 </body>
 </html>
