@@ -348,16 +348,45 @@ const fuel=dist*fuelRate;
 
 tbody.insertAdjacentHTML("beforeend",`
 <tr>
-<td>Motorist ${motorIndex+1}</td>
-<td>Batch ${batchIndex+1} - Stop ${i+1}</td>
-<td>${o.nama}</td>
-<td>${o.items.join(", ")}</td>
-<td>${o.qty}</td>
-<td>${dist.toFixed(2)}</td>
-<td>${formatTime(time)}<br><small>(${formatTime(travelTime)} + ${serviceTimePerOutlet}m)</small></td>
-<td>${fuel.toFixed(2)}</td>
+<td>
+    <select class="motorist-select">
+        ${generateMotoristOptions(motorIndex+1)}
+    </select>
+</td>
+<td contenteditable="true">Batch ${batchIndex+1} - Stop ${i+1}</td>
+<td contenteditable="true">${o.nama}</td>
+<td contenteditable="true">${o.items.join(", ")}</td>
+<td contenteditable="true">${o.qty}</td>
+<td contenteditable="true">${dist.toFixed(2)}</td>
+<td contenteditable="true">${formatTime(time)}</td>
+<td contenteditable="true">${fuel.toFixed(2)}</td>
+<td><button class="btnDelete">❌</button></td>
 </tr>
 `);
+
+document.getElementById("routingTableBody")
+?.addEventListener("click", function(e){
+    if(e.target.classList.contains("btnDelete")){
+        e.target.closest("tr").remove();
+    }
+});
+
+function generateMotoristOptions(selected){
+
+    const count = parseInt(document.getElementById("motoristCount").value || 1);
+    let options = "";
+
+    for(let i=1;i<=count;i++){
+        options += `
+            <option value="Motorist ${i}" ${i===selected?'selected':''}>
+                Motorist ${i}
+            </option>
+        `;
+    }
+
+    return options;
+}
+
 
 motorDist+=dist;
 motorTime+=time;
@@ -462,4 +491,6 @@ return jam>0?`${jam} jam ${menit} menit`:`${menit} menit`;
 
 
 });
+
+
 

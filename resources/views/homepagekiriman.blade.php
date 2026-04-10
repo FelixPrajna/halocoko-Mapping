@@ -188,6 +188,11 @@
             📊 Hasil Routing Motorist
         </div>
 
+        <div class="routing-actions">
+    <button id="btnAddRow" class="btn-add">➕ Tambah</button>
+    <button id="btnSaveRouting" class="btn-save">💾 Save</button>
+</div>
+
         <!-- SUMMARY -->
         <div id="routingSummary" class="routing-summary">
             <!-- diisi JS -->
@@ -197,17 +202,18 @@
         <div class="table-wrapper">
             <table id="routingTable">
                 <thead>
-                    <tr>
-                        <th>Motorist</th>
-                        <th>Urutan</th>
-                        <th>Nama Toko</th>
-                        <th>Item Produk</th>
-                        <th>Quantity</th>
-                        <th>Jarak(km)</th>
-                        <th>Estimasi Waktu</th>
-                        <th>Bensin</th>
-                    </tr>
-                </thead>
+    <tr>
+        <th>Motorist</th>
+        <th>Urutan</th>
+        <th>Nama Toko</th>
+        <th>Item Produk</th>
+        <th>Quantity</th>
+        <th>Jarak(km)</th>
+        <th>Estimasi Waktu</th>
+        <th>Bensin</th>
+        <th>Aksi</th> <!-- TAMBAHAN -->
+    </tr>
+</thead>
                 <tbody id="routingTableBody">
                     <!-- diisi JS -->
                 </tbody>
@@ -229,6 +235,7 @@
 <script src="{{ asset('js/homepagekiriman.js') }}"></script>
 <script src="{{ asset('js/translate.js') }}"></script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="/js/routingCrud.js"></script>
 
 </body>
 </html>

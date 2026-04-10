@@ -1,4 +1,4 @@
-<?php include 'lang.blade.php'; ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
