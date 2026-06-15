@@ -34,6 +34,7 @@ function makeEditable() {
 tbody?.addEventListener("click", (e)=>{
 if(e.target.classList.contains("btnDelete")){
     e.target.closest("tr").remove();
+    window.recalculateRoutingFromTable?.();
 }
 });
 
@@ -41,9 +42,17 @@ if(e.target.classList.contains("btnDelete")){
 
 btnAdd?.addEventListener("click", ()=>{
 
+const motorOptions=window.generateMotoristOptions
+?window.generateMotoristOptions(1)
+:`<option value="Motorist 1" selected>Motorist 1</option>`;
+
 tbody.insertAdjacentHTML("beforeend",`
 <tr>
-<td contenteditable="true">Motorist</td>
+<td>
+    <select class="motorist-select">
+        ${motorOptions}
+    </select>
+</td>
 <td contenteditable="true">Stop</td>
 <td contenteditable="true">Nama Toko</td>
 <td contenteditable="true">Item</td>
@@ -55,6 +64,25 @@ tbody.insertAdjacentHTML("beforeend",`
 </tr>
 `);
 
+window.recalculateRoutingFromTable?.();
+
+});
+
+tbody?.addEventListener("change", (e)=>{
+if(e.target.classList.contains("motorist-select")){
+    window.recalculateRoutingFromTable?.();
+}
+});
+
+tbody?.addEventListener("input", (e)=>{
+const cell=e.target.closest("td[contenteditable='true']");
+if(!cell) return;
+const row=cell.closest("tr");
+if(!row) return;
+const cells=row.querySelectorAll("td");
+if(cells[2]===cell){
+    window.recalculateRoutingFromTable?.();
+}
 });
 
 /* ================= SAVE ================= */
@@ -69,8 +97,10 @@ const cells = row.querySelectorAll("td");
 
 if(cells.length < 8) return;
 
+const motorSelect=cells[0].querySelector("select");
+
 data.push({
-motorist: cells[0].innerText.trim(),
+motorist: motorSelect?motorSelect.value:cells[0].innerText.trim(),
 urutan: cells[1].innerText.trim(),
 toko: cells[2].innerText.trim(),
 item: cells[3].innerText.trim(),
@@ -114,6 +144,8 @@ tbody.insertAdjacentHTML("beforeend",`
 </tr>
 `);
 });
+
+window.recalculateRoutingFromTable?.();
 
 }
 

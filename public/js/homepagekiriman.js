@@ -5,7 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentRows = [];
 let warehouse = null;
 let warehouseMarker = null;
-const markers = [];
+const uploadMarkers = [];
+const routeMarkers = [];
+const routePolylines = [];
+let routingActive = false;
 
 /* ================= WAKTU TAMBAHAN ================= */
 
@@ -41,6 +44,103 @@ shadowUrl:"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-sh
 iconSize:[25,41],
 iconAnchor:[12,41]
 });
+
+const motoristColorNames=["blue","green","orange","violet","yellow","grey","gold","black"];
+const motoristColorHex={
+blue:"#2A81CB",
+green:"#2CAD00",
+orange:"#CB8427",
+violet:"#9C27B0",
+yellow:"#FFD326",
+grey:"#777777",
+gold:"#FFD700",
+black:"#000000"
+};
+
+function createMotoristIcon(colorName){
+return new L.Icon({
+iconUrl:`https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${colorName}.png`,
+shadowUrl:"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+iconSize:[25,41],
+iconAnchor:[12,41]
+});
+}
+
+function clearRouteLayers(){
+routeMarkers.forEach(m=>map.removeLayer(m));
+routeMarkers.length=0;
+routePolylines.forEach(p=>map.removeLayer(p));
+routePolylines.length=0;
+}
+
+function clearUploadMarkers(){
+uploadMarkers.forEach(m=>map.removeLayer(m));
+uploadMarkers.length=0;
+}
+
+function syncMapFromRoutingTable(){
+const tbody=document.getElementById("routingTableBody");
+if(!tbody||!warehouse) return;
+
+clearRouteLayers();
+clearUploadMarkers();
+
+const outletMap={};
+groupToko(currentRows).forEach(o=>{
+outletMap[o.nama.toLowerCase()]=o;
+});
+
+const motorGroups={};
+
+tbody.querySelectorAll("tr").forEach(row=>{
+const cells=row.querySelectorAll("td");
+if(cells.length<8) return;
+
+const motorSelect=cells[0].querySelector("select");
+const motorist=motorSelect?motorSelect.value:cells[0].innerText.trim();
+const namaToko=cells[2].innerText.trim();
+
+if(!motorGroups[motorist]) motorGroups[motorist]=[];
+motorGroups[motorist].push(namaToko);
+});
+
+const addedOutlets=new Set();
+
+Object.entries(motorGroups).forEach(([motorist,stops],idx)=>{
+const colorName=motoristColorNames[idx%motoristColorNames.length];
+const icon=createMotoristIcon(colorName);
+const latlngs=[[warehouse.lat,warehouse.lng]];
+
+stops.forEach(namaToko=>{
+const outlet=outletMap[namaToko.toLowerCase()];
+if(!outlet||isNaN(outlet.lat)||isNaN(outlet.lng)) return;
+
+latlngs.push([outlet.lat,outlet.lng]);
+
+const key=namaToko.toLowerCase();
+if(!addedOutlets.has(key)){
+addedOutlets.add(key);
+routeMarkers.push(
+L.marker([outlet.lat,outlet.lng],{icon})
+.addTo(map)
+.bindPopup(`<b>${outlet.nama}</b><br>${motorist}`)
+);
+}
+});
+
+latlngs.push([warehouse.lat,warehouse.lng]);
+
+if(latlngs.length>2){
+routePolylines.push(
+L.polyline(latlngs,{
+color:motoristColorHex[colorName]||"#2A81CB",
+weight:3,
+opacity:0.75
+}).addTo(map)
+);
+}
+});
+}
 
 /* ================= WAREHOUSE ================= */
 
@@ -165,8 +265,9 @@ alert("✅ File berhasil diupload");
 const tableBody=document.querySelector("#resultTable tbody");
 
 function renderTable(rows){
-markers.forEach(m=>map.removeLayer(m));
-markers.length=0;
+routingActive=false;
+clearRouteLayers();
+clearUploadMarkers();
 tableBody.innerHTML="";
 
 rows.forEach((r,i)=>{
@@ -175,7 +276,7 @@ const lat=parseFloat(r["latitude"]);
 const lng=parseFloat(r["longitude"]);
 
 if(!isNaN(lat)&&!isNaN(lng)){
-markers.push(
+uploadMarkers.push(
 L.marker([lat,lng],{icon:outletIcon})
 .addTo(map)
 .bindPopup(r["nama toko"])
@@ -290,6 +391,126 @@ map[nama].qty+=parseFloat(r["qty"])||0;
 return Object.values(map);
 }
 
+function generateMotoristOptions(selected){
+const count=parseInt(document.getElementById("motoristCount").value||1);
+let options="";
+
+for(let i=1;i<=count;i++){
+options+=`
+<option value="Motorist ${i}" ${i===selected?"selected":""}>
+Motorist ${i}
+</option>
+`;
+}
+
+return options;
+}
+
+function recalculateRoutingFromTable(){
+const tbody=document.getElementById("routingTableBody");
+const summary=document.getElementById("routingSummary");
+
+if(!tbody||!summary||!warehouse) return;
+
+const outletMap={};
+groupToko(currentRows).forEach(o=>{
+outletMap[o.nama.toLowerCase()]=o;
+});
+
+const speed=30;
+const fuelRate=0.04;
+const motorCount=Math.max(1,parseInt(document.getElementById("motoristCount").value||1));
+
+const motorGroups={};
+
+tbody.querySelectorAll("tr").forEach(row=>{
+const cells=row.querySelectorAll("td");
+if(cells.length<8) return;
+
+const motorSelect=cells[0].querySelector("select");
+const motorist=motorSelect?motorSelect.value:cells[0].innerText.trim();
+const namaToko=cells[2].innerText.trim();
+
+if(!motorGroups[motorist]) motorGroups[motorist]=[];
+motorGroups[motorist].push({cells,namaToko});
+});
+
+let totalDist=0;
+let totalTime=0;
+let totalFuel=0;
+
+summary.innerHTML="";
+
+Object.entries(motorGroups).forEach(([motorist,stops])=>{
+let current={lat:warehouse.lat,lng:warehouse.lng};
+let motorDist=0;
+let motorTime=0;
+let motorFuel=0;
+
+stops.forEach(({cells,namaToko})=>{
+const outlet=outletMap[namaToko.toLowerCase()];
+let dist=0;
+let time=0;
+let fuel=0;
+
+if(outlet){
+dist=getDistance(current.lat,current.lng,outlet.lat,outlet.lng);
+const travelTime=(dist/speed)*60;
+time=travelTime+serviceTimePerOutlet;
+fuel=dist*fuelRate;
+current=outlet;
+}
+
+cells[5].innerText=dist.toFixed(2);
+cells[6].innerText=formatTime(time);
+cells[7].innerText=fuel.toFixed(2);
+
+motorDist+=dist;
+motorTime+=time;
+motorFuel+=fuel;
+});
+
+const backDist=getDistance(current.lat,current.lng,warehouse.lat,warehouse.lng);
+const backTime=(backDist/speed)*60;
+const backFuel=backDist*fuelRate;
+
+motorDist+=backDist;
+motorTime+=backTime+breakTimePerMotor;
+motorFuel+=backFuel;
+
+summary.innerHTML+=`
+<hr>
+<b>${motorist}</b><br>
+Jarak ${motorDist.toFixed(2)} km<br>
+Waktu ${formatTime(motorTime)}<br>
+Istirahat ${breakTimePerMotor} menit<br>
+Bensin ${motorFuel.toFixed(2)} L
+`;
+
+totalDist+=motorDist;
+totalTime+=motorTime;
+totalFuel+=motorFuel;
+});
+
+const averageTime=motorCount>0?totalTime/motorCount:0;
+
+summary.innerHTML+=`
+<hr>
+<b>TOTAL</b><br>
+Jarak ${totalDist.toFixed(2)} km<br>
+Waktu ${formatTime(totalTime)}<br>
+Bensin ${totalFuel.toFixed(2)} L
+<hr>
+<b style="color:green;">AVERAGE PER MOTORIST</b><br>
+Waktu Rata-rata ${formatTime(averageTime)}
+`;
+
+syncMapFromRoutingTable();
+}
+
+window.recalculateRoutingFromTable=recalculateRoutingFromTable;
+window.generateMotoristOptions=generateMotoristOptions;
+
 /* ================= ROUTING ================= */
 
 function buatRouting(outlets, motorCount){
@@ -364,30 +585,6 @@ tbody.insertAdjacentHTML("beforeend",`
 </tr>
 `);
 
-document.getElementById("routingTableBody")
-?.addEventListener("click", function(e){
-    if(e.target.classList.contains("btnDelete")){
-        e.target.closest("tr").remove();
-    }
-});
-
-function generateMotoristOptions(selected){
-
-    const count = parseInt(document.getElementById("motoristCount").value || 1);
-    let options = "";
-
-    for(let i=1;i<=count;i++){
-        options += `
-            <option value="Motorist ${i}" ${i===selected?'selected':''}>
-                Motorist ${i}
-            </option>
-        `;
-    }
-
-    return options;
-}
-
-
 motorDist+=dist;
 motorTime+=time;
 motorFuel+=fuel;
@@ -442,6 +639,9 @@ Waktu Rata-rata ${formatTime(averageTime)}
 `;
 
 document.getElementById("routingResultWrapper").style.display="block";
+
+routingActive=true;
+syncMapFromRoutingTable();
 }
 /* ================= DISTANCE ================= */
 
