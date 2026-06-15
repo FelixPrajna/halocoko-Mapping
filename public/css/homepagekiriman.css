@@ -756,3 +756,120 @@ body {
     background: none !important;
     box-shadow: none !important;
 }
+
+/* ===================================================== */
+/* ================= THEME TOGGLE ====================== */
+/* ===================================================== */
+
+#themeToggle {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+
+    z-index: 10000;
+
+    padding: 8px 14px;
+    border: none;
+    border-radius: 999px;
+
+    background: #fff;
+    color: #333;
+
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: 0 4px 14px rgba(0,0,0,.2);
+}
+
+#themeToggle:hover {
+    background: #f5f5f5;
+}
+
+#themeToggle:hover {
+    background: #f5f5f5;
+}
+
+/* ===================================================== */
+/* ================= LIGHT MODE ======================== */
+/* ===================================================== */
+
+body.light-mode {
+    background: linear-gradient(
+        180deg,
+        #f8f4ef,
+        #efe4d7
+    );
+    color: #2b1409;
+}
+
+/* Navbar */
+body.light-mode .navbar {
+    background: #ffffff;
+    color: #2b1409;
+}
+
+/* Hero */
+body.light-mode .hero p {
+    color: #666;
+}
+
+/* Form Gudang */
+body.light-mode .warehouse-form input {
+    background: #ffffff;
+    color: #222;
+    border: 1px solid #ddd;
+}
+
+/* Upload */
+body.light-mode .upload-card {
+    background: #ffffff;
+    color: #333;
+}
+
+/* Result */
+body.light-mode .result-card {
+    background: #ffffff;
+}
+
+/* Routing */
+body.light-mode .routing-card {
+    background: #ffffff;
+}
+
+/* Summary */
+body.light-mode .routing-summary {
+    color: #333;
+}
+
+/* Table */
+body.light-mode #routingTable td,
+body.light-mode #resultTable td {
+    color: #333;
+}
+
+/* Footer */
+body.light-mode footer {
+    color: #666;
+}
+
+/* Map */
+body.light-mode #map {
+    box-shadow: 0 12px 30px rgba(0,0,0,.12);
+}
+
+/* Hilangkan ikon Google Translate */
+.goog-te-gadget-icon {
+    display: none !important;
+}
+
+/* Rapikan widget */
+.goog-te-gadget-simple {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Hilangkan tulisan Google Translate */
+.goog-te-gadget-simple span {
+    display: none !important;
+}

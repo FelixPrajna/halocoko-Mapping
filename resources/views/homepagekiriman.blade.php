@@ -18,6 +18,7 @@
 <!-- ================= NAVBAR ================= -->
  <div id="google_translate_element"></div>
 
+<button id="themeToggle" type="button">🌙</button>
 <button id="btnLang" type="button">🌐</button>
 <nav class="navbar-wrapper">
     <div class="navbar">
@@ -283,6 +284,35 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             alert("❌ Function generate WA tidak ditemukan");
         }
+    });
+
+});
+document.addEventListener("DOMContentLoaded", () => {
+
+    const themeBtn = document.getElementById("themeToggle");
+
+    if (!themeBtn) return;
+
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "light") {
+        document.body.classList.add("light-mode");
+        themeBtn.textContent = "☀️";
+    }
+
+    themeBtn.addEventListener("click", () => {
+
+        document.body.classList.toggle("light-mode");
+
+        const isLight = document.body.classList.contains("light-mode");
+
+        localStorage.setItem(
+            "theme",
+            isLight ? "light" : "dark"
+        );
+
+        themeBtn.textContent =
+            isLight ? "☀️" : "🌙";
     });
 
 });
