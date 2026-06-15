@@ -225,7 +225,7 @@
 </section>
 
 <button id="btnExport">Export Excel</button>
-
+<button id="btnWAGenerate">Generate WA Motorist</button>
 <!-- ================= FOOTER ================= -->
 <footer>
     © {{ date('Y') }} Halocoko — Distribution Route System
@@ -237,7 +237,8 @@
 
 <script src="{{ asset('js/homepagekiriman.js') }}"></script>
 <script src="/js/routingCrud.js"></script>
-
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="{{ asset('js/generatewa.js') }}"></script>
 <!-- EXPORT HARUS PALING BAWAH -->
 <script src="{{ asset('js/exportdata.js') }}"></script>
 
@@ -257,6 +258,29 @@ document.addEventListener("DOMContentLoaded", function () {
             exportRoutingToExcel();
         } else {
             alert("❌ Function export tidak ditemukan");
+        }
+    });
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btnWA = document.getElementById("btnWAGenerate");
+
+    if (!btnWA) {
+        console.warn("❌ Tombol WA tidak ditemukan");
+        return;
+    }
+
+    btnWA.addEventListener("click", function () {
+        console.log("✅ WA GENERATE DIKLIK");
+
+        if (typeof generateWAPerMotorist === "function") {
+            generateWAPerMotorist();
+        } else {
+            alert("❌ Function generate WA tidak ditemukan");
         }
     });
 
