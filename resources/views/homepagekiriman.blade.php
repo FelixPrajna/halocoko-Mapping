@@ -224,6 +224,8 @@
 
 </section>
 
+<button id="btnExport">Export Excel</button>
+
 <!-- ================= FOOTER ================= -->
 <footer>
     © {{ date('Y') }} Halocoko — Distribution Route System
@@ -232,10 +234,34 @@
 <!-- ================= SCRIPT ================= -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <script src="{{ asset('js/homepagekiriman.js') }}"></script>
-<script src="{{ asset('js/translate.js') }}"></script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <script src="/js/routingCrud.js"></script>
+
+<!-- EXPORT HARUS PALING BAWAH -->
+<script src="{{ asset('js/exportdata.js') }}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btn = document.getElementById("btnExport");
+
+    if (!btn) {
+        console.warn("❌ Tombol export tidak ditemukan");
+        return;
+    }
+
+    btn.addEventListener("click", function () {
+        console.log("✅ EXPORT DIKLIK");
+        if (typeof exportRoutingToExcel === "function") {
+            exportRoutingToExcel();
+        } else {
+            alert("❌ Function export tidak ditemukan");
+        }
+    });
+
+});
+</script>
 
 </body>
 </html>

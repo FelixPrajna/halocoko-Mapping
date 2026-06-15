@@ -692,5 +692,8 @@ return jam>0?`${jam} jam ${menit} menit`:`${menit} menit`;
 
 });
 
-
+document.getElementById("btnExport")
+?.addEventListener("click", () => {
+  exportRoutingToExcel();
+});
 
