@@ -16,9 +16,9 @@
 <body>
 
 <!-- ================= NAVBAR ================= -->
- <div id="google_translate_element" style="display:none;"></div>
+ <div id="google_translate_element"></div>
 
-<button id="btnLang">🌐</button>
+<button id="btnLang" type="button">🌐</button>
 <nav class="navbar-wrapper">
     <div class="navbar">
         <div class="nav-left">
@@ -237,7 +237,8 @@
 
 <script src="{{ asset('js/homepagekiriman.js') }}"></script>
 <script src="/js/routingCrud.js"></script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="{{ asset('js/translate.js') }}"></script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <script src="{{ asset('js/generatewa.js') }}"></script>
 <!-- EXPORT HARUS PALING BAWAH -->
 <script src="{{ asset('js/exportdata.js') }}"></script>

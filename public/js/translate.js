@@ -1,38 +1,86 @@
+/* ================= CONFIG ================= */
+
+const PAGE_LANG = "id";
+const TARGET_LANG = "zh-CN";
+
+let currentLang = localStorage.getItem("lang") || PAGE_LANG;
+
+/* ================= COOKIE ================= */
+
+function setGoogTransCookie(lang) {
+    const expire = "expires=Thu, 01 Jan 1970 00:00:00 UTC";
+
+    document.cookie = `googtrans=; ${expire}; path=/;`;
+    document.cookie = `googtrans=; ${expire}; path=/; domain=${location.hostname};`;
+
+    if (lang && lang !== PAGE_LANG) {
+        document.cookie = `googtrans=/${PAGE_LANG}/${lang}; path=/;`;
+    }
+}
+
+/* Set cookie sebelum widget Google load (supaya auto-translate saat reload) */
+setGoogTransCookie(currentLang);
+
 /* ================= INIT GOOGLE ================= */
 
 function googleTranslateElementInit() {
     new google.translate.TranslateElement({
-        pageLanguage: 'id',
-        includedLanguages: 'id,zh-CN',
+        pageLanguage: PAGE_LANG,
+        includedLanguages: `${PAGE_LANG},${TARGET_LANG}`,
         autoDisplay: false
-    }, 'google_translate_element');
+    }, "google_translate_element");
 }
 
-/* ================= TOGGLE ================= */
+/* ================= SELECT (fallback tanpa reload) ================= */
 
-let currentLang = localStorage.getItem("lang") || "id";
+function getTranslateSelect() {
+    return document.querySelector("#google_translate_element select.goog-te-combo")
+        || document.querySelector("select.goog-te-combo");
+}
 
-function setLanguage(lang) {
-    const select = document.querySelector(".goog-te-combo");
-    if (!select) return;
+function triggerTranslateSelect(lang) {
+    const select = getTranslateSelect();
+    if (!select) return false;
 
-    select.value = lang;
-    select.dispatchEvent(new Event("change"));
+    const value = lang === PAGE_LANG ? "" : lang;
+    select.value = value;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
 
-    localStorage.setItem("lang", lang);
+    if (lang === PAGE_LANG) {
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    return true;
+}
+
+function waitForTranslateSelect(callback, attempts = 40) {
+    const select = getTranslateSelect();
+    if (select) {
+        callback(select);
+        return;
+    }
+
+    if (attempts <= 0) {
+        callback(null);
+        return;
+    }
+
+    setTimeout(() => waitForTranslateSelect(callback, attempts - 1), 250);
 }
 
 /* ================= BUTTON ================= */
 
-document.addEventListener("click", function(e) {
-
+document.addEventListener("click", function (e) {
     const btn = e.target.closest("#btnLang");
     if (!btn) return;
 
-    currentLang = currentLang === "id" ? "zh-CN" : "id";
+    e.preventDefault();
 
-    setLanguage(currentLang);
-    updateButton();
+    const nextLang = currentLang === PAGE_LANG ? TARGET_LANG : PAGE_LANG;
+
+    localStorage.setItem("lang", nextLang);
+    setGoogTransCookie(nextLang);
+    window.location.reload();
 });
 
 /* ================= BUTTON TEXT ================= */
@@ -41,7 +89,7 @@ function updateButton() {
     const btn = document.getElementById("btnLang");
     if (!btn) return;
 
-    btn.innerText = currentLang === "id"
+    btn.textContent = currentLang === PAGE_LANG
         ? "🇮🇩 Indonesia"
         : "🇨🇳 中文";
 }
@@ -49,21 +97,20 @@ function updateButton() {
 /* ================= AUTO LOAD ================= */
 
 window.addEventListener("load", () => {
-
+    currentLang = localStorage.getItem("lang") || PAGE_LANG;
     updateButton();
 
-    setTimeout(() => {
-        setLanguage(currentLang);
-    }, 1000);
+    if (currentLang !== PAGE_LANG) {
+        waitForTranslateSelect((select) => {
+            if (select) triggerTranslateSelect(currentLang);
+        });
+    }
 });
 
 /* ================= FORCE HIDE GOOGLE BAR ================= */
 
 setInterval(() => {
-    const frame = document.querySelector('.goog-te-banner-frame');
-    if (frame) {
-        frame.style.display = 'none';
-    }
-
-    document.body.style.top = '0px';
+    const frame = document.querySelector(".goog-te-banner-frame");
+    if (frame) frame.style.display = "none";
+    document.body.style.top = "0px";
 }, 500);

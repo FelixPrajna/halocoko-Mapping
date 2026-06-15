@@ -696,25 +696,53 @@ footer {
 }
 
 body {
-    top: 0px !important;
+    top: 0 !important;
+}
+
+/* Widget disembunyikan tapi tetap aktif (jangan display:none) */
+#google_translate_element {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .goog-te-gadget {
-    display: none !important;
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+#btnLang {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 10000;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 999px;
+    background: #fff;
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+#btnLang:hover {
+    background: #f5f5f5;
 }
 
 /* ================= HIDE GOOGLE BAR ================= */
 
 .goog-te-banner-frame.skiptranslate {
-    display: none !important;
-}
-
-body {
-    top: 0px !important;
-}
-
-/* HIDE ICON GOOGLE */
-.goog-te-gadget {
     display: none !important;
 }
 
